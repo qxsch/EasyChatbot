@@ -127,6 +127,10 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
           name:'SCM_DO_BUILD_DURING_DEPLOYMENT'
           value:'true'
         }
+        {
+          name: 'CHATBOT_SECRET_KEY'
+          value: '${uniqueString(subscription().id)}${uniqueString(resourceGroup().id)}'
+        }
       ]
     }
   }
