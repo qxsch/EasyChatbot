@@ -3,7 +3,7 @@ import json
 from flask import Flask, render_template, request, jsonify, redirect, url_for, send_from_directory
 from . import app, all_users, ChatbotUser
 from flask_login import login_user, login_required, logout_user, current_user
-from easy_chat import EasyChatClient, dict_to_chat_messages
+from .easy_chat import EasyChatClient, dict_to_chat_messages
 
 
 chatClient = EasyChatClient()
