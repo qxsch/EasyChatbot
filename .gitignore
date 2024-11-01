@@ -7,3 +7,4 @@ env
 /secrets-store/**/*
 /pdf_documents/*
 /pdf_documents/**/*
+!/pdf_documents/README.md
