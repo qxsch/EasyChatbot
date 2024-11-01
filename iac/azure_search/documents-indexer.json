@@ -1,0 +1,33 @@
+{
+  "@odata.context": "https://contososrch854568.search.windows.net/$metadata#indexers/$entity",
+  "@odata.etag": "\"0x8DCF9B0A93F03B0\"",
+  "name": "documents-indexer",
+  "description": null,
+  "dataSourceName": "documents-datasource",
+  "skillsetName": "documents-skillset",
+  "targetIndexName": "documents",
+  "disabled": null,
+  "schedule": null,
+  "parameters": {
+    "batchSize": null,
+    "maxFailedItems": null,
+    "maxFailedItemsPerBatch": null,
+    "base64EncodeKeys": null,
+    "configuration": {
+      "dataToExtract": "contentAndMetadata",
+      "parsingMode": "default",
+      "allowSkillsetToReadFileData": true,
+      "indexedFileNameExtensions": ".pdf"
+    }
+  },
+  "fieldMappings": [
+    {
+      "sourceFieldName": "metadata_storage_name",
+      "targetFieldName": "title",
+      "mappingFunction": null
+    }
+  ],
+  "outputFieldMappings": [],
+  "cache": null,
+  "encryptionKey": null
+}

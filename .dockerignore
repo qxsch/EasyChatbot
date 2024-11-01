@@ -1,0 +1,7 @@
+iac
+pdf_documents
+pdf_documents/**
+__pycache__
+*.pyc
+*.pyo
+*.pyd

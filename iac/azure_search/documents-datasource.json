@@ -1,0 +1,10 @@
+{
+  "name": "documents-datasource",
+  "type": "azureblob",
+  "credentials": {
+    "connectionString": "ResourceId=/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/RGNAME/providers/Microsoft.Storage/storageAccounts/STORAGEACCOUNTNAME;"
+  },
+  "container": {
+    "name": "documents"
+  }
+}
