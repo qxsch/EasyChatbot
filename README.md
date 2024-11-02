@@ -2,6 +2,13 @@
 
 An Easy Chatbot Interface
 
+* Automatically generates the azure resources needed for the chatbot
+* Uploads the pdf documents to an azure storage account
+* Indexes the pdf documents with azure search (Vectorized, Hybrid and Semantic Search)
+* Uses OpenAI to generate responses to user input with links to the pdf documents (citation to page)
+* On click it will open the pdf document at the correct page
+
+
 ## How to Setup?
 
 1. Put your pdf documents in the [pdf_documents folder](pdf_documents)
