@@ -1,3 +1,11 @@
+function getPageNumberArrayAsString(pages) {
+    var a = [];
+    for(var i = 0; i < pages.length; i++) {
+        a.push(pages[i] + 1);
+    }
+    return a.join(", ");
+}
+
 class ChatManager {
     #submitBtn = null;
     #clearBtn = null;
@@ -180,10 +188,10 @@ class ChatManager {
                         //node.title = citation.storageaccount_blob;
                         if(citation.pages.length > 0) {
                             if(citation.pages.length == 1) {
-                                node.title += " (page " + citation.pages.join(", ") + ")";
+                                node.title += " (page " + getPageNumberArrayAsString(citation.pages) + ")";
                             }
                             else {
-                                node.title += " (pages " + citation.pages.join(", ") + ")";
+                                node.title += " (pages " + getPageNumberArrayAsString(citation.pages) + ")";
                             }
                         }
                         if(citation.url.endsWith(".pdf")) {
@@ -211,7 +219,6 @@ class ChatManager {
 
         this.#chatBubblesContainer.appendChild(messageElement);
     }
-
 }
 
 window.chatbot = new ChatManager();
