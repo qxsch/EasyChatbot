@@ -119,10 +119,14 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
       alwaysOn: true
       appCommandLine: 'gunicorn --bind=0.0.0.0 --workers=4 startup:app'
       appSettings: [
+//        {
+//          name: 'AZURE_STORAGEBLOB_CONNECTIONSTRING'
+//          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${storageAccount.listKeys().keys[0].value};EndpointSuffix=core.windows.net'
+//        }
         {
-          name: 'AZURE_STORAGEBLOB_CONNECTIONSTRING'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${storageAccount.listKeys().keys[0].value};EndpointSuffix=core.windows.net'
-        }   
+          name: 'AZURE_STORAGEBLOB_RESOURCEENDPOINT'
+          value: 'https://${storageAccount.name}.blob.core.windows.net'
+        }
         {
           name: 'OPENAI_API_BASE'
           value: azureOpenAi.properties.endpoint

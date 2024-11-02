@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-import json, io
+import json, io, hashlib, os
 from flask import Flask, render_template, request, jsonify, redirect, url_for, send_file
 from . import app, all_users, ChatbotUser
 from flask_login import login_user, login_required, logout_user, current_user
@@ -8,6 +8,27 @@ from .azurestorage import BlobStorage
 
 
 chatClient = EasyChatClient()
+# get the path of the current script
+try:
+    systemPromptFewshotPath = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "system-prompt-fewshot-examples.txt")
+    systemPromptPath = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "system-prompt.txt")
+    systemPrompt = ""
+    systemPromptFewshot = ""
+    if os.path.exists(systemPromptPath):
+        with open(systemPromptPath, "r") as f:
+            systemPrompt = f.read()
+        systemPrompt = systemPrompt.strip()
+        if systemPrompt != "":
+            chatClient.setSystemMessage(systemPrompt)
+    if os.path.exists(systemPromptFewshotPath):
+        with open(systemPromptFewshotPath, "r") as f:
+            systemPromptFewshot = f.read()
+        systemPromptFewshot = systemPromptFewshot.strip()
+        if systemPromptFewshot != "":
+            chatClient.setFewShotExamples([systemPromptFewshot])
+except:
+    pass
+
 
 
 #region -------- WEB/UI ENDPOINTS --------
@@ -39,7 +60,15 @@ def login():
         if str(user.username).lower().strip() != username:
             return render_template("login.html", message="Invalid credentials", user=current_user)
         # Check the password
-        if user.password == request.form.get("password"):
+        try:
+            hashed_password = hashlib.sha256(request.form.get("password").encode()).hexdigest()
+        except:
+            hashed_password = ""
+        if user.password[:7] == "sha256:" and user.password[7:] == hashed_password:
+            # Use the login_user method to log in the user
+            login_user(user)
+            return redirect(url_for("home"))
+        if user.password[:7] != "sha256:" and user.password == request.form.get("password"):
             # Use the login_user method to log in the user
             login_user(user)
             return redirect(url_for("home"))

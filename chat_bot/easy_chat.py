@@ -88,6 +88,9 @@ class EasyChatClient:
     _azure_search_index_name: str
     _semantic_configuration: str
     _filter: str = ""
+    _system_message : str = "You are an helpful assistant that helps finding information from documents."
+    _system_few_shot_examples : List[str] = [ ]
+    _final_system_message : str = "You are an helpful assistant that helps finding information from documents."
     
     def __init__(
         self,
@@ -180,6 +183,22 @@ class EasyChatClient:
     def getSearchFilter(self) -> str:
         return self._filter
     
+
+    def _updateFinalSystemMessage(self):
+        self._final_system_message = self._system_message
+        if len(self._system_few_shot_examples) > 0:
+            self._final_system_message += "\n\nFew-shot examples:\n" + "\n".join(self._system_few_shot_examples)
+    def setFewShotExamples(self, examples: List[str]):
+        self._system_few_shot_examples = examples
+        self._updateFinalSystemMessage()
+    def getFewShotExamples(self) -> List[str]:
+        return self._system_few_shot_examples
+    def setSystemMessage(self, message: str):
+        self._system_message = message
+        self._updateFinalSystemMessage()
+    def getSystemMessage(self) -> str:
+        return self._system_message
+
     def chat(self, messages: List[EasyChatMessage]) -> dict:
         dataSource = {
             "type": "azure_search",
@@ -213,15 +232,22 @@ class EasyChatClient:
         # setting filter
         if self._filter != "":
             dataSource["parameters"]["filter"] = str(self._filter)
-
+        # setting messages
+        msgs = [
+            {
+                "role": "system",
+                "content": self._final_system_message
+            }
+        ]
+        for message in messages:
+            msgs.append({
+                "role": message.role,
+                "content": message.content
+            })
+        # creating the completion
         completion = self._open_ai_client.chat.completions.create(
             model = self._open_ai_deployment_name,
-            messages = [
-                {
-                    "role": message.role,
-                    "content": message.content,
-                } for message in messages
-            ],
+            messages = msgs,
             temperature=0.2,
             extra_body= {
                 "data_sources": [ dataSource ]
