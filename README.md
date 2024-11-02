@@ -22,7 +22,9 @@ It has the following structure:
 [
     {
         "username": "admin",  // username should be unique
-        "password": "admin",  // password can be plaintext, but should be hashed. In this case it has to begin with 'sha256:' and then the hashed password (f,e, "admin" = "sha256:8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918")
+        "password": "admin",  // password can be plaintext, but should be hashed.
+                              // In this case it has to begin with 'sha256:' and then the hashed password
+                              // (f,e, "admin" = "sha256:8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918")
         "role": "admin"       // allowed values: admin, user
     }
 ]
