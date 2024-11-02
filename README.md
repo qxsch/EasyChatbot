@@ -5,6 +5,8 @@ An Easy Chatbot Interface
 ## How to Setup?
 
 1. Put your pdf documents in the [pdf_documents folder](pdf_documents)
+1. Create your users.json file (see [users.json](sample-user.json) for an example)
+1. Fine tune the [system-prompt.txt](system-prompt.txt) and [system-prompt-fewshot-examples.txt](system-prompt-fewshot-examples.txt) files
 1. Run the setup script  ( You can check the parameters in the [deployment.bicep](iac/deployment.bicep) file )
     ```pwsh
     .\iac\deployChatbot.ps1 -ResourceGroupName "easychatbot" -Location "northeurope" -
