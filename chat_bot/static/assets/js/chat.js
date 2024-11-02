@@ -190,6 +190,7 @@ class ChatManager {
                             node.addEventListener("click", function(event) {
                                 event.preventDefault();
                                 console.log("PDF Citation", citation);
+                                window.pdfRenderer.renderPDF(citation);
                             });
                         }
                     }
@@ -213,8 +214,6 @@ class ChatManager {
 
 }
 
-
-window.challenge = new ChatManager();
-
+window.chatbot = new ChatManager();
 
 

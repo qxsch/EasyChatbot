@@ -3,9 +3,22 @@
 Easy Chat Bot
 {% endblock %}
 {% block headloadscript %}
-    <!-- Import element definition and auto-register -->
+    <script src="{{ url_for('static', filename='assets/js/modal.js') }}"></script>
+    <!-- Import zero-md element definition and auto-register -->
     <script type="module" src="https://cdn.jsdelivr.net/npm/zero-md@3?register"></script>
-    <!-- <script src="https://mozilla.github.io/pdf.js/build/pdf.mjs" type="module"></script> -->
+    <!-- Import pdf.js -->
+    <script type="module">
+        import pdfjsDist from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.7.76/+esm';
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.7.76/build/pdf.worker.mjs';
+    </script>
+    <script type="module" src="{{ url_for('static', filename='assets/js/pdfrenderer.js') }}"></script>
+    <!--<script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.7.76/pdf.min.mjs"></script>
+    <script type="module">
+
+        var { pdfjsLib } = globalThis;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.7.76/pdf.worker.mjs';
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.7.76/pdf_viewer.min.css" />-->
 {% endblock %}
 {% block content %}
 <h1>Chat</h1>
@@ -24,4 +37,14 @@ Easy Chat Bot
 
 {% block bottomloadscript %}
 <script src="{{ url_for('static', filename='assets/js/chat.js') }}"></script>
+<modal-dialog id="PdfViewer">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="close">&times;</div>
+            <h2>PDF Viewer</h2>
+        </div>
+        <div class="modal-body">
+        </div>
+    </div>
+</modal-dialog>
 {% endblock %}

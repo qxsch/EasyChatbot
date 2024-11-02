@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta
-import json
-from flask import Flask, render_template, request, jsonify, redirect, url_for, send_from_directory
+import json, io
+from flask import Flask, render_template, request, jsonify, redirect, url_for, send_file
 from . import app, all_users, ChatbotUser
 from flask_login import login_user, login_required, logout_user, current_user
 from .easy_chat import EasyChatClient, dict_to_chat_messages
+from .azurestorage import BlobStorage
 
 
 chatClient = EasyChatClient()
@@ -49,7 +50,7 @@ def login():
 #region -------- API ENDPOINTS --------
 @login_required
 @app.route("/api/chat", methods=["POST"])
-def api_set_challenge():
+def api_chat():
     if not isinstance(current_user, ChatbotUser):
         logout_user()
         return redirect(url_for("login"))
@@ -60,6 +61,39 @@ def api_set_challenge():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+
+@login_required
+@app.route("/api/blobstorage/file", methods=["GET"])
+def api_blobstorage_pdf():
+    if not isinstance(current_user, ChatbotUser):
+        logout_user()
+        return redirect(url_for("login"))
+    if current_user.role not in ["admin", "user"]:
+        return jsonify({"success": False, "error": "Unauthorized"}), 403
+    # check for required parameters
+    if not request.args.get("storageaccount_name") or not request.args.get("storageaccount_container") or not request.args.get("storageaccount_blob"):
+        return jsonify({"success": False, "error": "Missing parameters"}), 400
+    # check for supported file type
+    fileExtension = str(request.args.get("storageaccount_blob")).split(".")[-1]
+    mimetype = "application/octet-stream"
+    if fileExtension == "pdf":
+        mimetype = "application/pdf"
+    else:
+        return jsonify({"success": False, "error": "Invalid file type"}), 406
+    bs = BlobStorage()
+    if not bs.hasFullPath(
+        account_name = request.args.get("storageaccount_name"),
+        container_name = request.args.get("storageaccount_container"),
+        path = request.args.get("storageaccount_blob")
+    ):
+        return jsonify({"success": False, "error": "Pdf document does not exist"}), 404
+    # send the file
+    return send_file(
+        io.BytesIO(bs.downloadBinary(request.args.get("storageaccount_blob"))),
+        mimetype = mimetype,
+        as_attachment = True,
+        download_name = str(request.args.get("storageaccount_blob")).split("/")[-1]
+    ), 200
 #endregion -------- API ENDPOINTS --------
 
 

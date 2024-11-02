@@ -120,8 +120,24 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
       appCommandLine: 'gunicorn --bind=0.0.0.0 --workers=4 startup:app'
       appSettings: [
         {
-          name: 'STORAGE_CONNECTION_STRING'
+          name: 'AZURE_STORAGEBLOB_CONNECTIONSTRING'
           value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${storageAccount.listKeys().keys[0].value};EndpointSuffix=core.windows.net'
+        }   
+        {
+          name: 'OPENAI_API_BASE'
+          value: azureOpenAi.properties.endpoint
+        }
+        {
+          name: 'OPENAI_EMBEDDING_DEPLOYMENT_NAME'
+          value: adaDeploymentName
+        }
+        {
+          name: 'AZURESEARCH_API_BASE'
+          value: 'https://${azureSearchName}.search.windows.net'
+        }
+        {
+          name: 'AZURESEARCH_INDEX_NAME'
+          value: 'documents'
         }
         {
           name:'SCM_DO_BUILD_DURING_DEPLOYMENT'
@@ -406,3 +422,7 @@ output webAppUrl string = webApp.properties.defaultHostName
 output azureSearchName string = azureSearch.name
 // output the storage account name
 output storageAccountName string = storageAccount.name
+// output the endpoint of the azure openai
+output azureOpenAiEndpoint string = azureOpenAi.properties.endpoint
+// output the endpoit of the azure search
+output azureSearchEndpoint string = 'https://${azureSearchName}.search.windows.net'
