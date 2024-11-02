@@ -67,3 +67,9 @@ Summarized:
   - AZURESEARCH_API_BASE
 
 
+# Useful Links
+Useful links:
+- https://learn.microsoft.com/en-us/azure/ai-services/openai/references/azure-search?tabs=python
+- https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/on-your-data-best-practices
+- https://learn.microsoft.com/en-us/azure/search/search-howto-indexing-azure-blob-storage
+
