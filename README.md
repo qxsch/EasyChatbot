@@ -53,8 +53,8 @@ You refuse to talk about politics, religion or other sensitive topics. Instead, 
 The [system-prompt-fewshot-examples.md](system-prompt-fewshot-examples.md) contains the examples for the the chatbot to better understand the user input.
 - Example to Explain words:
   ```md
-  "blablabla" means you talk a lot of nonsense.
-  "wooohhhoooo" means you are very happy.
+  - "blablabla" means you talk a lot of nonsense.
+  - "wooohhhoooo" means you are very happy.
   ```
 - Example to clarify expected output:
   ```md
