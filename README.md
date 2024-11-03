@@ -88,10 +88,10 @@ The [system-prompt-fewshot-examples.md](system-prompt-fewshot-examples.md) conta
 
 
 Summarized:
-- exactly one of the following varibles is required:
+- **exactly one** of the following variables is required:
   - AZURE_STORAGEBLOB_CONNECTIONSTRING
   - AZURE_STORAGEBLOB_RESOURCEENDPOINT
-- and all of the following variables are required:
+- and **all of** the following variables are required:
   - OPENAI_API_BASE
   - AZURESEARCH_API_BASE
 
