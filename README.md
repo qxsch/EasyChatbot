@@ -58,10 +58,10 @@ The [system-prompt-fewshot-examples.md](system-prompt-fewshot-examples.md) conta
   ```
 - Example to clarify expected output:
   ```md
-  - User: Where is the best place to go skiing ? System: search and provide answer
-  - User: What are my latest bookings ? System: Let the user know that you can't help with that.
-  - User: Which hotel offers suite room? System: search and provide answer
-  - User: Is there a room available in Zurich on Mach 24th? System: Let the user know that you can't help with that.
+  - User: Where is the best place to go skiing? System action: Search and provide answer
+  - User: What are my latest bookings? System action: Let the user know that you can't help with that.
+  - User: Which hotel offers suite room? System  action: Search and provide answer
+  - User: Is there a room available in Zurich on Mach 24th? System action: Let the user know that you can't help with that.
   ```
 
 
