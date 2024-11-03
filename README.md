@@ -74,7 +74,7 @@ The [system-prompt-fewshot-examples.md](system-prompt-fewshot-examples.md) conta
 
 | Variable Name | Description | Example |
 | --- | --- | --- |
-| CHATBOT_SECRET_KEY | Required, Secret Key for the chatbot interface | keepItSecretAndDoNotTellAnyone |
+| CHATBOT_SECRET_KEY | Required, Secret Key for the chatbot interface (used for user login cookie) | keepItSecretAndDoNotTellAnyone |
 | AZURE_STORAGEBLOB_CONNECTIONSTRING | Required for storage account key auth (if not using AZURE_STORAGEBLOB_RESOURCEENDPOINT)  |  DefaultEndpointsProtocol=https;AccountName=your_account_name;AccountKey=your_account_key;EndpointSuffix=core.windows.net |
 | AZURE_STORAGEBLOB_RESOURCEENDPOINT | Required for default credential Entra ID auth (if not using AZURE_STORAGEBLOB_CONNECTIONSTRING) | https://your_account_name.blob.core.windows.net |
 | AZURE_STORAGEBLOB_CONTAINER | Optional Azure Storage Blob Container Name  (Default: documents) | documents |
