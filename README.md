@@ -72,6 +72,9 @@ The [system-prompt-fewshot-examples.md](system-prompt-fewshot-examples.md) conta
 
 ## Supported Enviroment Variables
 
+Documentation for the supported environment variables (required and optional) for the chatbot interface.
+You don't need to set the environment variables, since the [deployment.bicep](iac/deployment.bicep) file will set everything for you.
+
 | Variable Name | Description | Example |
 | --- | --- | --- |
 | CHATBOT_SECRET_KEY | Required, Secret Key for the chatbot interface (used for user login cookie) | keepItSecretAndDoNotTellAnyone |
