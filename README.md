@@ -41,6 +41,11 @@ It has the following structure:
     }
 ]
 ```
+You can also hash all plaintext passwords with the following command:
+```pwsh
+.\iac\hashPasswords.ps1
+```
+
 
 ### system-prompt.md
 The [system-prompt.md](system-prompt.md) contains the dos and donts for the chatbot. What it should do, shouldn't do and how it should behave.
