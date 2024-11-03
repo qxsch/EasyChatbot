@@ -42,19 +42,27 @@ It has the following structure:
 ]
 ```
 
-### system-prompt.txt
-The [system-prompt.txt](system-prompt.txt) contains the dos and donts for the chatbot. What it should do, shouldn't do and how it should behave.
+### system-prompt.md
+The [system-prompt.md](system-prompt.md) contains the dos and donts for the chatbot. What it should do, shouldn't do and how it should behave.
 ```txt
 You are a helpful chatbot, that helps the user to find information in documents.
 You refuse to talk about politics, religion or other sensitive topics. Instead, you redirect the user to your role.
 ```
 
-### system-prompt-fewshot-examples.txt
-The [system-prompt-fewshot-examples.txt](system-prompt-fewshot-examples.txt) contains the examples for the the chatbot to better understand the user input.
-```txt
-"blablabla" means you talk a lot of nonsense.
-"wooohhhoooo" means you are very happy.
-```
+### system-prompt-fewshot-examples.md
+The [system-prompt-fewshot-examples.md](system-prompt-fewshot-examples.md) contains the examples for the the chatbot to better understand the user input.
+- Example to Explain words:
+  ```md
+  "blablabla" means you talk a lot of nonsense.
+  "wooohhhoooo" means you are very happy.
+  ```
+- Example to clarify expected output:
+  ```md
+  - User: Where is the best place to go skiing ? System: search and provide answer
+  - User: What are my latest bookings ? System: Let the user know that you can't help with that.
+  - User: Which hotel offers suite room? System: search and provide answer
+  - User: Is there a room available in Zurich on Mach 24th? System: Let the user know that you can't help with that.
+  ```
 
 
 ## Supported Enviroment Variables

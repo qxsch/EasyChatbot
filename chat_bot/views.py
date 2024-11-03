@@ -10,8 +10,8 @@ from .azurestorage import BlobStorage
 chatClient = EasyChatClient()
 # get the path of the current script
 try:
-    systemPromptFewshotPath = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "system-prompt-fewshot-examples.txt")
-    systemPromptPath = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "system-prompt.txt")
+    systemPromptFewshotPath = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "system-prompt-fewshot-examples.md")
+    systemPromptPath = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "system-prompt.md")
     systemPrompt = ""
     systemPromptFewshot = ""
     if os.path.exists(systemPromptPath):
