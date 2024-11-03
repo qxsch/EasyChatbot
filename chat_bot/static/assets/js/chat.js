@@ -1,7 +1,7 @@
 function getPageNumberArrayAsString(pages) {
     var a = [];
     for(var i = 0; i < pages.length; i++) {
-        a.push(pages[i] + 1);
+        a.push(parseInt(pages[i]) + 1);
     }
     return a.join(", ");
 }
