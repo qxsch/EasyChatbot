@@ -16,7 +16,7 @@ An Easy Chatbot Interface
 1. Fine tune the [system-prompt.md](system-prompt.md) and [system-prompt-fewshot-examples.md](system-prompt-fewshot-examples.md) files
 1. Run the setup script  ( You can check the parameters in the [deployment.bicep](iac/deployment.bicep) file )
     ```pwsh
-    .\iac\deployChatbot.ps1 -ResourceGroupName "easychatbot" -Location "northeurope" -
+    .\iac\deployChatbot.ps1 -ResourceGroupName "easychatbot" -Location "northeurope"
     ```
 1. Login to the chatbot interface and chat with your pdf data
 
