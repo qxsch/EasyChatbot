@@ -92,6 +92,7 @@ Summarized:
   - AZURE_STORAGEBLOB_CONNECTIONSTRING
   - AZURE_STORAGEBLOB_RESOURCEENDPOINT
 - and **all of** the following variables are required:
+  - CHATBOT_SECRET_KEY
   - OPENAI_API_BASE
   - AZURESEARCH_API_BASE
 
