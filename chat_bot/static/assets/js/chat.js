@@ -117,8 +117,8 @@ class ChatManager {
     }
 
     #popLastChatMessage() {
-        chatHistory.pop();
         this.#removeUiWaitingChatMessage();
+        this.#chatMessages.pop();
         this.#chatBubblesContainer.removeChild(this.#chatBubblesContainer.lastChild);
         return;
     }
