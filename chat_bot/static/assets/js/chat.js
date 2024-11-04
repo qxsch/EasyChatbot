@@ -25,10 +25,19 @@ class ChatManager {
         this.#chatTextBox = this.#getHtmlElement(chatTextBox, "chatTextBox");
         this.#chatBubblesContainer = this.#getHtmlElement(chatBubblesContainer, "chatBubblesContainer");
 
+        this.#chatTextBox.addEventListener("keydown", this.#onChatTextBoxKeyDown.bind(this));
         this.#submitBtn.addEventListener("click", this.submitMessage.bind(this));
         this.#clearBtn.addEventListener("click", this.clearChat.bind(this));
 
         this.setRestorePromptOnFailure(restorePromptOnFailure);
+    }
+
+    #onChatTextBoxKeyDown(event) {
+        // check if the key is enter and not shift+enter (to allow multiline messages)
+        if(event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            this.#submitBtn.click();
+        }
     }
 
     #getHtmlElement(element, defaultValue = "") {
