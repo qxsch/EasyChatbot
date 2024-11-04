@@ -40,7 +40,7 @@ foreach($fname in @( "users.json", "system-prompt.md" )) {
 
 # check if there are any other Cognitive Services accounts in the subscription
 if((Get-AzCognitiveServicesAccount | Where-Object { $_.AccountType -eq "OpenAi" -and ( $_.ResourceGroupName -ne $ResourceGroupName -and $_.AccountName -like "openai*") }).Count -gt 0) {
-    Write-Warning "There are multiple OpenAI Cognitive Services accounts in the subscription. Please make sure that the deployment capacities are set correctly! This might lead to failing deployments."
+    Write-Warning "There are multiple OpenAI Cognitive Services accounts in the subscription. This might lead to failing deployments. Please make sure that the deployment capacities are set correctly!"
     if(($gpt4oDeploymentCapacity -le 0) -or (-eq $adaDeploymentCapacity -le 0)) {
         throw "There are multiple OpenAI Cognitive Services accounts in the subscription. Please set -gpt4oDeploymentCapacity and -adaDeploymentCapacity!"
     }
