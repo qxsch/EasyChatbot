@@ -12,6 +12,9 @@ param (
 
     [string]$azureSearchName = $null,
 
+    [int]$gpt4oDeploymentCapacity = 0,
+    [int]$adaDeploymentCapacity = 0,
+
     [switch]$skipIacDeployment,
     [switch]$skipPdfUploadToStorage,
     [switch]$skipAzureSearchConfiguration,
@@ -32,6 +35,14 @@ if(-not (Test-Path $FilesDir -PathType Container)) {
 foreach($fname in @( "users.json", "system-prompt.md" )) {
     if(-not (Test-Path (Join-Path $botRoot $fname) -PathType Leaf)) {
         throw "The file '$fname' does not exist in the directory '$botRoot'"
+    }
+}
+
+# check if there are any other Cognitive Services accounts in the subscription
+if((Get-AzCognitiveServicesAccount | Where-Object { $_.AccountType -eq "OpenAi" -and ( $_.ResourceGroupName -ne $ResourceGroupName -and $_.AccountName -like "openai*") }).Count -gt 0) {
+    Write-Warning "There are multiple OpenAI Cognitive Services accounts in the subscription. Please make sure that the deployment capacities are set correctly! This might lead to failing deployments."
+    if(($gpt4oDeploymentCapacity -le 0) -or (-eq $adaDeploymentCapacity -le 0)) {
+        throw "There are multiple OpenAI Cognitive Services accounts in the subscription. Please set -gpt4oDeploymentCapacity and -adaDeploymentCapacity!"
     }
 }
 
@@ -64,6 +75,12 @@ if(-not $skipIacDeployment) {
     }
     if(-not($null -eq $aiLocation -or $aiLocation -eq "")) {
         $params["aiLocation"] = $aiLocation
+    }
+    if($gpt4oDeploymentCapacity -gt 0) {
+        $params["gpt4oDeploymentCapacity"] = $gpt4oDeploymentCapacity
+    }
+    if($adaDeploymentCapacity -gt 0) {
+        $params["adaDeploymentCapacity"] = $adaDeploymentCapacity
     }
     $deployment = New-AzResourceGroupDeployment @params -Name "chatbot" -ErrorAction Stop
     Write-Host "Azure resource group deployment completed"

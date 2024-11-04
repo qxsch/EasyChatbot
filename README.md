@@ -28,7 +28,7 @@ For local installation, you have to install the following components:
 ## How to Setup?
 
 1. Put your pdf documents in the [pdf_documents folder](pdf_documents)
-1. Create your users.json file (see [sample-users.json](sample-user.json)) or use the example ``cp sample-user.json users.json``
+1. Create your users.json file (see [sample-users.json](sample-users.json)) or use the example ``cp sample-users.json users.json``
 1. Fine tune the [system-prompt.md](system-prompt.md) and [system-prompt-fewshot-examples.md](system-prompt-fewshot-examples.md) files
 1. Run the setup script  ( You can check the parameters in the [deployment.bicep](iac/deployment.bicep) file )
     ```pwsh
@@ -42,7 +42,7 @@ For local installation, you have to install the following components:
 ## Files required for the setup
 
 ### users.json
-This file contains the users that can login to the chatbot interface. The file should be in the same folder as the [sample-user.json](sample-user.json) file.
+This file contains the users that can login to the chatbot interface. The file should be in the same folder as the [sample-users.json](sample-users.json) file.
 It has the following structure:
 ```json
 [
