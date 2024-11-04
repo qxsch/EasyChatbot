@@ -11,6 +11,11 @@ An Easy Chatbot Interface
 
 ## Prerequisites
 
+> [!TIP]
+> In case you use the [Azure Cloud Shell](https://learn.microsoft.com/en-us/azure/cloud-shell/overview), all required components are already installed.
+
+For local installation, you have to install the following components:
+
 - PowerShell 7+ ([Installation instructions](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.4))
 - Azure PowerShell Az Module ([More information here](https://learn.microsoft.com/en-us/powershell/azure/install-azps-windows?view=azps-12.4.0&tabs=powershell&pivots=windows-psgallery))
   ```pwsh
