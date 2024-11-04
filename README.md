@@ -12,7 +12,12 @@ An Easy Chatbot Interface
 ## Prerequisites
 
 - PowerShell 7+ ([Installation instructions](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.4))
-- Azure PowerShell Az Module ([Installation instructions](https://learn.microsoft.com/en-us/powershell/azure/install-azps-windows?view=azps-12.4.0&tabs=powershell&pivots=windows-psgallery))
+- Azure PowerShell Az Module ([More information here](https://learn.microsoft.com/en-us/powershell/azure/install-azps-windows?view=azps-12.4.0&tabs=powershell&pivots=windows-psgallery))
+  ```pwsh
+  Install-Module -Name Az -AllowClobber
+  Install-Module -Name Az.Search
+  Connect-AzAccount # login
+  ```
 - Bicep CLI ([Installation instructions](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/install#windows))
 
 ## How to Setup?
