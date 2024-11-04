@@ -72,11 +72,16 @@ class StoragePDFRenderer {
                 viewport: pdfViewport
             };
             await pdfPage.render(renderContext).promise;
+            if(i!=0) {
+                var hr = document.createElement("hr");
+                rootDiv.appendChild(hr);
+            }
             var pdfImage = new Image();
             pdfImage.src = pdfCanvas.toDataURL();
             pdfImage.style.width = "100%";
             pdfImage.style.height = "auto";
             pdfImage.id = "pdf-canvas-page" + i;
+            pdfImage.title = "Page " + (i + 1);
             rootDiv.appendChild(pdfImage);
         }
         loaderDiv.style.display = "none";

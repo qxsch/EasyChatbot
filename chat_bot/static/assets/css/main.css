@@ -351,3 +351,8 @@ modal-dialog div.modal-content div.modal-body div.loading {
     --dot-color: #264653;
     margin: 20px 0px 30px 20px;
 }
+
+modal-dialog div.modal-content div.modal-body hr  {
+    border: 0px none transparent;
+    border-top: 1px solid black;
+}
