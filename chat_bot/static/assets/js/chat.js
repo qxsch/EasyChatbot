@@ -126,6 +126,12 @@ class ChatManager {
     async clearChat() {
         this.#chatMessages = [];
         this.#chatBubblesContainer.innerHTML = "";
+        try {
+            window.pdfRenderer.clearCache();
+        }
+        catch(e) {
+            console.error("Error while clearing cache", e);
+        }
         return;
     }
 

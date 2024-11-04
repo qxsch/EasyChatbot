@@ -1,8 +1,74 @@
 
+// create a cache of fixed size x, that purgest oldes elements when the size is reached
+class Cache {
+    #cache = {};
+    #cacheItems = [];
+    #cacheMaxSize = 0;
+    constructor(maxSize) {
+        this.#cacheMaxSize = parseInt(maxSize);
+        if(this.#cacheMaxSize <= 1) {
+            throw new Error("Cache size must be greater than 1");
+        }
+    }
+
+    async get(key, promiseval = null) {
+        if(key in this.#cache) {
+            this.#cacheItems.splice(this.#cacheItems.indexOf(key), 1);
+            this.#cacheItems.push(key);
+            return this.#cache[key];
+        }
+        if(promiseval === null) {
+            return null;
+        }
+        return await this.set(key, promiseval);
+    }
+
+    async set(key, promiseval) {
+        if(key in this.#cache) {
+            this.#cacheItems.splice(this.#cacheItems.indexOf(key), 1);
+        }
+        var value = await promiseval();
+        if(value === null) {
+            this.delete(key);
+            return null;
+        }
+        console.log("succcess");
+        this.#cache[key] = value;
+        this.#cacheItems.push(key);
+        this.#trim(); // remove the oldest element if the cache is full
+        return value;
+    }
+
+    delete(key) {
+        if(key in this.#cache) {
+            delete this.#cache[key];
+            this.#cacheItems.splice(this.#cacheItems.indexOf(key), 1);
+        }
+    }
+
+    clear() {
+        this.#cache = {};
+        this.#cacheItems = [];
+    }
+
+    #trim() {
+        if(this.#cacheItems.length > this.#cacheMaxSize) {
+            delete this.#cache[this.#cacheItems.shift()];
+        }
+    }
+}
+
+
 class StoragePDFRenderer {
     #modalWindow = null;
-    constructor() {
+    #documentCache = null;
+    constructor(cacheSize = 10) {
         this.#modalWindow = new ModalWindow(document.getElementById("PdfViewer"));
+        this.#documentCache = new Cache(cacheSize);
+    }
+
+    clearCache() {
+        this.#documentCache.clear();
     }
 
     async renderPDF(citation) {
@@ -33,21 +99,29 @@ class StoragePDFRenderer {
         this.#modalWindow.addElement(rootDiv);
         // open the modal window
         this.#modalWindow.open();
-        
+        // size of the modal body
         const bodySize = this.#modalWindow.getModalBodySize();
-        console.log("Modal Body Size", bodySize);
 
-        var pdfBlob = await fetch(
-            "/api/blobstorage/file?" + (new URLSearchParams([ ...Object.entries({
-                "storageaccount_blob" : citation.storageaccount_blob,
-                "storageaccount_container" : citation.storageaccount_container,
-                "storageaccount_name" : citation.storageaccount_name
-            })])).toString(), 
-            {
-                method: 'GET',
-                cache: 'no-cache'
+        var pdfBlob = await this.#documentCache.get(
+            citation.storageaccount_blob + '|' + citation.storageaccount_container + '|' + citation.storageaccount_name,
+            () => {
+                return fetch(
+                    "/api/blobstorage/file?" + (new URLSearchParams([ ...Object.entries({
+                        "storageaccount_blob" : citation.storageaccount_blob,
+                        "storageaccount_container" : citation.storageaccount_container,
+                        "storageaccount_name" : citation.storageaccount_name
+                    })])).toString(), 
+                    {
+                        method: 'GET',
+                        cache: 'no-cache'
+                    }
+                ).then(response => response.blob());
             }
-        ).then(response => response.blob());
+        );
+        if(pdfBlob === null) {
+            console.error("Failed to fetch the PDF Blob");
+            this.#modalWindow.close();
+        }
         var pdfData = await new Response(pdfBlob).arrayBuffer();
         var pdf = await pdfjsLib.getDocument({data: pdfData}).promise;
         var pdfPages = pdf.numPages;
