@@ -3,6 +3,7 @@ param (
     [string]$ResourceGroupName,
 
     [string]$location = $null,
+    [string]$aiLocation = $null,
     [string]$webAppName = $null,
     [string]$sku = $null,
     [string]$workerSize = $null,
@@ -60,6 +61,9 @@ if(-not $skipIacDeployment) {
     }
     if(-not($null -eq $azureSearchName -or $azureSearchName -eq "")) {
         $params["azureSearchName"] = $azureSearchName
+    }
+    if(-not($null -eq $aiLocation -or $aiLocation -eq "")) {
+        $params["aiLocation"] = $aiLocation
     }
     $deployment = New-AzResourceGroupDeployment @params -Name "chatbot" -ErrorAction Stop
     Write-Host "Azure resource group deployment completed"
