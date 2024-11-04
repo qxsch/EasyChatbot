@@ -27,7 +27,12 @@ if($FilesDir -eq "") {
 if(-not (Test-Path $FilesDir -PathType Container)) {
     throw "FilesDir must be a directory"
 }
-
+# check if the required files exist
+foreach($fname in @( "users.json", "system-prompt.md" )) {
+    if(-not (Test-Path (Join-Path $botRoot $fname) -PathType Leaf)) {
+        throw "The file '$fname' does not exist in the directory '$botRoot'"
+    }
+}
 
 # run the bicep deployment
 if(-not $skipIacDeployment) {
@@ -100,7 +105,7 @@ if(-not $skipAzureSearchConfiguration) {
     Write-Host "Configuring Azure Search"
     # resolving the ada deployment name
     $adaDeploymentName = ""
-    foreach($x in (Get-AzCognitiveServicesAccountDeployment -ResourceGroupName chatbot -AccountName $azOAI.AccountName)) {
+    foreach($x in (Get-AzCognitiveServicesAccountDeployment -ResourceGroupName $ResourceGroupName -AccountName $azOAI.AccountName)) {
         if($x.Properties.Model.Name -eq "text-embedding-ada-002") {
             $adaDeploymentName = $x.Name
             break

@@ -9,6 +9,12 @@ An Easy Chatbot Interface
 * On click it will open the pdf document at the correct page
 
 
+## Prerequisites
+
+- PowerShell 7+ ([Installation instructions](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.4))
+- Azure PowerShell Az Module ([Installation instructions](https://learn.microsoft.com/en-us/powershell/azure/install-azps-windows?view=azps-12.4.0&tabs=powershell&pivots=windows-psgallery))
+- Bicep CLI ([Installation instructions](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/install#windows))
+
 ## How to Setup?
 
 1. Put your pdf documents in the [pdf_documents folder](pdf_documents)
@@ -16,6 +22,9 @@ An Easy Chatbot Interface
 1. Fine tune the [system-prompt.md](system-prompt.md) and [system-prompt-fewshot-examples.md](system-prompt-fewshot-examples.md) files
 1. Run the setup script  ( You can check the parameters in the [deployment.bicep](iac/deployment.bicep) file )
     ```pwsh
+    # create a resource group
+    New-AzResourceGroup -Name "easychatbot" -Location northeurope
+    # deploy the chatbot - you require owner role on the resource group
     .\iac\deployChatbot.ps1 -ResourceGroupName "easychatbot" -Location "northeurope"
     ```
 1. Login to the chatbot interface and chat with your pdf data

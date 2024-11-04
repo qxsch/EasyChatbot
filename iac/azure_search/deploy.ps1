@@ -35,7 +35,7 @@ try {
 }
 catch {
     Write-Host -ForegroundColor Green "Creating Data Source 'documents-datasource' for Azure Search"
-    Invoke-RestMethod -Method Post -Uri ( $azureSearchEndpoint + "/datasources?api-version=2024-09-01-preview" ) -Headers @{ "api-key" = $azureSearchKey } -Body ( $datasource | ConvertTo-Json -Depth 100 ) -ContentType "application/json"
+    Invoke-RestMethod -Method Post -Uri ( $azureSearchEndpoint + "/datasources?api-version=2024-09-01-preview" ) -Headers @{ "api-key" = $azureSearchKey } -Body ( $datasource | ConvertTo-Json -Depth 100 ) -ContentType "application/json" | Out-Null
 }
 
 
@@ -55,7 +55,7 @@ try {
 }
 catch {
     Write-Host -ForegroundColor Green "Creating Index 'documents-index' for Azure Search"
-    Invoke-RestMethod -Method Post -Uri ( $azureSearchEndpoint + "/indexes?api-version=2024-09-01-preview" ) -Headers @{ "api-key" = $azureSearchKey } -Body ( $index | ConvertTo-Json -Depth 100 ) -ContentType "application/json"
+    Invoke-RestMethod -Method Post -Uri ( $azureSearchEndpoint + "/indexes?api-version=2024-09-01-preview" ) -Headers @{ "api-key" = $azureSearchKey } -Body ( $index | ConvertTo-Json -Depth 100 ) -ContentType "application/json" | Out-Null
 }
 
 
@@ -75,7 +75,7 @@ try {
 }
 catch {
     Write-Host -ForegroundColor Green "Creating Skillset 'documents-skillset' for Azure Search"
-    Invoke-RestMethod -Method Post -Uri ( $azureSearchEndpoint + "/skillsets?api-version=2024-09-01-preview" ) -Headers @{ "api-key" = $azureSearchKey } -Body ( $skillset | ConvertTo-Json -Depth 100 ) -ContentType "application/json"
+    Invoke-RestMethod -Method Post -Uri ( $azureSearchEndpoint + "/skillsets?api-version=2024-09-01-preview" ) -Headers @{ "api-key" = $azureSearchKey } -Body ( $skillset | ConvertTo-Json -Depth 100 ) -ContentType "application/json" | Out-Null
 }
 
 
@@ -95,7 +95,7 @@ catch {
     while($true) {
         try {
             Write-Host " - Running attempt $tries"
-            Invoke-RestMethod -Method Post -Uri ( $azureSearchEndpoint + "/indexers?api-version=2024-09-01-preview" ) -Headers @{ "api-key" = $azureSearchKey } -Body ( $indexer | ConvertTo-Json -Depth 100 ) -ContentType "application/json"
+            Invoke-RestMethod -Method Post -Uri ( $azureSearchEndpoint + "/indexers?api-version=2024-09-01-preview" ) -Headers @{ "api-key" = $azureSearchKey } -Body ( $indexer | ConvertTo-Json -Depth 100 ) -ContentType "application/json" | Out-Null
             break
         }
         catch {
