@@ -3,10 +3,9 @@ param webAppName string = toLower('chat-${uniqueString(resourceGroup().id)}') //
 
 @description('The pricing tier for the hosting plan.')
 @allowed([
-  'F1'
-  'D1'
   'B1'
-  'S1'
+  'B2'
+  'P0V3'
 ])
 param sku string = 'B1' // The SKU of App Service Plan
 
