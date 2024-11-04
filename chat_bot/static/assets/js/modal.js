@@ -11,8 +11,9 @@ class ModalWindow {
         this.modalContent = document.querySelector('.modal-content');
     }
 
-
-
+    getModalBodySize() {
+        return this.#modalBody.getBoundingClientRect();
+    }
 
     removeAllElements() {
         this.#modalBody.innerHTML = "";

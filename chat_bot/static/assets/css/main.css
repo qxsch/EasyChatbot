@@ -1,5 +1,6 @@
 @import url('https://fonts.cdnfonts.com/css/segoe-ui-4');
 @import url('https://fonts.cdnfonts.com/css/segoe-ui-variable-static-display');
+@import url('dots.css');
 
 /**
 https://coolors.co/palette/264653-2a9d8f-e9c46a-f4a261-e76f51
@@ -219,9 +220,11 @@ textarea.chatTextbox {
     margin-top: 60px;
     position: relative;
     word-wrap: break-word;
+    min-height: 40px;
   }
   
   .chatMessage.user {
+    --dot-color: deeppink;
     border-left: 10px solid deeppink;
   }
   
@@ -244,6 +247,7 @@ textarea.chatTextbox {
   }
 
   .chatMessage.assistant {
+    --dot-color: limegreen;
     border-right: 10px solid limegreen;
   }
   
@@ -260,8 +264,14 @@ textarea.chatTextbox {
     border-radius: 0 0 40px 0;
   }
 
+  .chatMessage.assistant.waiting > div {
+    margin-top: 15px;
+    margin-left: 15px;
+  }
+
 
   .chatMessage.error {
+    --dot-color: red;
     border-right: 10px solid red;
     color: red;
   }
@@ -335,4 +345,9 @@ modal-dialog div.modal-content div.modal-body {
     flex-grow: 1;
     padding: 10px;
     overflow-y: auto;
+}
+
+modal-dialog div.modal-content div.modal-body div.loading {
+    --dot-color: #264653;
+    margin: 20px 0px 30px 20px;
 }

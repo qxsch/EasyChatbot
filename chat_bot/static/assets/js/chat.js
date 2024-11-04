@@ -57,6 +57,25 @@ class ChatManager {
         return this;
     }
 
+    #removeUiWaitingChatMessage(messageElement) {
+        // remove the waiting messages
+        while(
+            this.#chatBubblesContainer.lastChild !== null &&
+            this.#chatBubblesContainer.lastChild.classList.contains("waiting")
+        ) {
+            this.#chatBubblesContainer.removeChild(this.#chatBubblesContainer.lastChild);
+        }
+    }
+    #addUiWaitingChatMessage() {
+        var messageElement = document.createElement("div");
+        messageElement.classList.add("chatMessage");
+        messageElement.classList.add("assistant");
+        messageElement.classList.add("waiting");
+        messageElement.innerHTML = '<div class="dot-pulse"></div>';
+        this.#chatBubblesContainer.appendChild(messageElement);
+        return;
+    }
+
     #addUiChatMessage(message, role, pushToHistory, addtionalClasses = []) {
         if(pushToHistory && role !== "error") {
             this.#chatMessages.push({
@@ -64,6 +83,7 @@ class ChatManager {
                 "content": message
             });
         }
+        this.#removeUiWaitingChatMessage();
 
         var messageElement = document.createElement("div");
         messageElement.classList.add("chatMessage");
@@ -78,6 +98,7 @@ class ChatManager {
 
     #addUiUserChatMessage(message) {
         this.#addUiChatMessage(message, "user", true);
+        this.#addUiWaitingChatMessage();
         return;
     }
     
@@ -88,6 +109,7 @@ class ChatManager {
 
     #popLastChatMessage() {
         chatHistory.pop();
+        this.#removeUiWaitingChatMessage();
         this.#chatBubblesContainer.removeChild(this.#chatBubblesContainer.lastChild);
         return;
     }
@@ -158,6 +180,7 @@ class ChatManager {
     }
 
     async #processChoice(choice) {
+        this.#removeUiWaitingChatMessage();
         this.#chatMessages.push({
             "role": "assistant",
             "content": choice.message.content
