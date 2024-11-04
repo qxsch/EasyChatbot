@@ -28,7 +28,7 @@ For local installation, you have to install the following components:
 ## How to Setup?
 
 1. Put your pdf documents in the [pdf_documents folder](pdf_documents)
-1. Create your users.json file (see [users.json](sample-user.json) for an example)
+1. Create your users.json file (see [users.json](sample-user.json) for an example) or use the default ``cp sample-user.json users.json``
 1. Fine tune the [system-prompt.md](system-prompt.md) and [system-prompt-fewshot-examples.md](system-prompt-fewshot-examples.md) files
 1. Run the setup script  ( You can check the parameters in the [deployment.bicep](iac/deployment.bicep) file )
     ```pwsh
