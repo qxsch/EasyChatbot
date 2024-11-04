@@ -248,7 +248,7 @@ class EasyChatClient:
         completion = self._open_ai_client.chat.completions.create(
             model = self._open_ai_deployment_name,
             messages = msgs,
-            temperature=0.1,
+            temperature=0.1, # recommended value is 0 or close to 0 (it can be between 0 and 2)
             extra_body= {
                 "data_sources": [ dataSource ]
             }
