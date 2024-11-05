@@ -13,7 +13,8 @@ An Easy Chatbot Interface
 
 > [!TIP]
 > In case you use the [Azure Cloud Shell](https://learn.microsoft.com/en-us/azure/cloud-shell/overview), most required components are already installed.
-> YOu just need to start the Cloud Shell and do this: ``Install-Module -Name Az.Search``
+>
+> You just need to start the Cloud Shell and do this: ``Install-Module -Name Az.Search``
 
 For local installation, you have to install the following components:
 
