@@ -58,6 +58,9 @@ class BlobStorage:
     def getStorageContainerName(self) -> str:
         return str(self._container)
     
+    def getBaseUrl(self) -> str:
+        return "https://" + str(self._bsc.account_name).lower().split(".")[0] + ".blob.core.windows.net" + "/" + str(self._container)   
+    
     def hasFullPath(self, account_name : str, container_name : str, path : str) -> bool:
         if account_name.lower().split(".")[0] != str(self._bsc.account_name).lower().split(".")[0]:
             return False

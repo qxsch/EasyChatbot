@@ -57,7 +57,7 @@ It has the following structure:
         // (f,e, "admin" = "sha256:8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918")
         "password": "admin",
 
-        // role allowed values: admin, user
+        // role allowed values: see roles.json
         "role": "admin"
     }
 ]
@@ -67,6 +67,33 @@ You can also hash all plaintext passwords with the following command:
 .\iac\hashPasswords.ps1
 ```
 
+### roles.json (optional)
+This file is **optional** and contains the roles. You can define custom filters for azure search in the filter field or use the blobPathStartsWith field to define a filter for the blob path.
+
+It essential in case you want to filter the search results based on the user role.
+```json
+[
+    {
+        "role": "admin",
+        "Description": "Can find all documents because there is no filter and no blobPathStartsWith defined",
+    },
+    {
+        "role": "limited-access-to-myfolder",
+        "Description": "Can access the myfolder in documents container of blob storage",
+        "filter": "search.ismatch('\"*.blob.core.windows.net\\/documents\\/myfolder\\/*\"', 'metadata_storage_path')"
+    },
+    {
+        "role": "alternative-limited-access-to-myfolder",
+        "Description": "Can access the myfolder in documents container of blob storage",
+        "blobPathStartsWith": "/myfolder/"
+    }
+]
+```
+
+Links to filter:
+- [Azure Search Filter Syntax](https://learn.microsoft.com/en-us/azure/search/search-query-odata-filter)
+- search.ismatch [Lucene Query Syntax](https://learn.microsoft.com/en-us/azure/search/query-lucene-syntax)
+
 
 ### system-prompt.md
 The [system-prompt.md](system-prompt.md) contains the dos and donts for the chatbot. What it should do, shouldn't do and how it should behave.
@@ -75,7 +102,7 @@ You are a helpful chatbot, that helps the user to find information in documents.
 You refuse to talk about politics, religion or other sensitive topics. Instead, you redirect the user to your role.
 ```
 
-### system-prompt-fewshot-examples.md
+### system-prompt-fewshot-examples.md (optional)
 The [system-prompt-fewshot-examples.md](system-prompt-fewshot-examples.md) contains the examples for the the chatbot to better understand the user input.
 - Example to Explain words:
   ```md

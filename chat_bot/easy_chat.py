@@ -1,9 +1,10 @@
 import os, re
-from urllib.parse import unquote
+from urllib.parse import unquote, quote
 from typing import Union, List
 from openai import AzureOpenAI
 from openai.types.chat import ChatCompletion
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+from .iam import ChatbotRole
 import json
 
 """
@@ -177,7 +178,20 @@ class EasyChatClient:
         if semantic_configuration is None or semantic_configuration == "":
             semantic_configuration = f"{self._azure_search_index_name}-semantic-configuration"
         self._semantic_configuration = str(semantic_configuration)
-        
+
+
+    def setSearchFilterFromRole(self, role : ChatbotRole, storage_base_url : str = ""):
+        f = ""
+        if not (role.getFilter() is None):
+            f = str(role.getFilter())
+        if not (role.getBlobPathStartsWith() is None):
+            if f != "":
+                f += " and "
+            metadataPath = storage_base_url + "/" +  quote(str(role.getBlobPathStartsWith()).lstrip("/")) + "*"
+            metadataPath = metadataPath.replace("/", "\\/").replace(":", "\\:")
+            f += "search.ismatch('\"" + metadataPath + "\"', 'metadata_storage_path')" 
+        self._filter = f
+
     def setSearchFilter(self, filter : str):
         self._filter = str(filter)
     def getSearchFilter(self) -> str:

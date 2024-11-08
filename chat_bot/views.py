@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 import json, io, hashlib, os
 from flask import Flask, render_template, request, jsonify, redirect, url_for, send_file
-from . import app, all_users, ChatbotUser
+from . import app, all_defined_users
+from .iam import ChatbotUser
 from flask_login import login_user, login_required, logout_user, current_user
 from .easy_chat import EasyChatClient, dict_to_chat_messages
 from .azurestorage import BlobStorage
@@ -53,9 +54,9 @@ def login():
     if request.method == "POST":
         # user exists?
         username = str(request.form.get("username")).lower().strip()
-        if username not in all_users:
+        if username not in all_defined_users:
             return render_template("login.html", message="User not found", user=current_user)
-        user = all_users[username]
+        user = all_defined_users[username]
         # Check the username (again)
         if str(user.username).lower().strip() != username:
             return render_template("login.html", message="Invalid credentials", user=current_user)
@@ -86,6 +87,8 @@ def api_chat():
     if current_user.role not in ["admin", "user"]:
         return jsonify({"success": False, "error": "Unauthorized"}), 403
     try:
+        bs = BlobStorage()
+        chatClient.setSearchFilterFromRole(current_user.getRole(), bs.getBaseUrl())
         return jsonify(chatClient.chat(dict_to_chat_messages(request.get_json()))), 200
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
