@@ -1,5 +1,8 @@
+@description('Resource Suffix to append to resources and give uniqueness.')
+param resourceSuffix string = uniqueString(resourceGroup().id) // Resource Suffix to append to resources and give uniqueness
+
 @description('Name of the web app.')
-param webAppName string = toLower('chat-${uniqueString(resourceGroup().id)}') // Generate unique String for web app name
+param webAppName string = toLower('chat-${resourceSuffix}') // Generate unique String for web app name
 
 @description('The pricing tier for the hosting plan.')
 @allowed([
@@ -24,10 +27,10 @@ param location string = 'northeurope' // Location for all resources
 param aiLocation string = 'swedencentral' // Location for ai resources
 
 @description('Name of the azure search.')
-param azureSearchName string = toLower('search-${uniqueString(resourceGroup().id)}') // The name of the Azure Search service
+param azureSearchName string = toLower('search-${resourceSuffix}') // The name of the Azure Search service
 
 @description('Name of the azure openai.')
-param azureOpenAiName string = toLower('openai${uniqueString(resourceGroup().id)}') // The name of the Azure OpenAI service
+param azureOpenAiName string = toLower('openai${resourceSuffix}') // The name of the Azure OpenAI service
 
 @description('Name of the azure openai gpt-4o deployment.')
 param gpt4oDeploymentName string = 'gpt-4o' // The name of the Azure OpenAI GPT-4o deployment
@@ -44,7 +47,7 @@ param adaDeploymentCapacity int = 350 // The capacity of the Azure OpenAI ada de
 // variables
 var linuxFxVersion = 'PYTHON|3.12' // The runtime stack of web app
 var appServicePlanName = toLower('plan-${webAppName}')
-var storageAccountName = toLower('storage${uniqueString(resourceGroup().id)}')
+var storageAccountName = toLower('storage${resourceSuffix}')
 
 
 

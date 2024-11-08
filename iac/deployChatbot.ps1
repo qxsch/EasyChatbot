@@ -2,8 +2,11 @@ param (
     [Parameter(Mandatory = $true)]
     [string]$ResourceGroupName,
 
+    [string]$resourceSuffix = $null,
+
     [string]$location = $null,
     [string]$aiLocation = $null,
+
     [string]$webAppName = $null,
     [string]$sku = $null,
     [string]$workerSize = $null,
@@ -12,7 +15,10 @@ param (
 
     [string]$azureSearchName = $null,
 
+    [string]$azureOpenAiName = $null,
+    [string]$gpt4oDeploymentName = $null,
     [int]$gpt4oDeploymentCapacity = 0,
+    [string]$adaDeploymentName = $null,
     [int]$adaDeploymentCapacity = 0,
 
     [switch]$skipIacDeployment,
@@ -57,6 +63,9 @@ if(-not $skipIacDeployment) {
         TemplateFile = (Join-Path $scriptPath "deployment.bicep")
         ResourceGroupName = $ResourceGroupName
     }
+    if(-not($null -eq $resourceSuffix -or $resourceSuffix -eq "")) {
+        $params["resourceSuffix"] = $resourceSuffix
+    }
     if(-not($null -eq $location -or $location -eq "")) {
         $params["location"] = $location
     }
@@ -73,11 +82,20 @@ if(-not $skipIacDeployment) {
     if(-not($null -eq $azureSearchName -or $azureSearchName -eq "")) {
         $params["azureSearchName"] = $azureSearchName
     }
+    if(-not($null -eq $azureOpenAiName -or $azureOpenAiName -eq "")) {
+        $params["azureOpenAiName"] = $azureOpenAiName
+    }
     if(-not($null -eq $aiLocation -or $aiLocation -eq "")) {
         $params["aiLocation"] = $aiLocation
     }
+    if(-not($null -eq $gpt4oDeploymentName -or $gpt4oDeploymentName -eq "")) {
+        $params["gpt4oDeploymentName"] = $gpt4oDeploymentName
+    }
     if($gpt4oDeploymentCapacity -gt 0) {
         $params["gpt4oDeploymentCapacity"] = $gpt4oDeploymentCapacity
+    }
+    if(-not($null -eq $adaDeploymentName -or $adaDeploymentName -eq "")) {
+        $params["adaDeploymentName"] = $adaDeploymentName
     }
     if($adaDeploymentCapacity -gt 0) {
         $params["adaDeploymentCapacity"] = $adaDeploymentCapacity
