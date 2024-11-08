@@ -1,0 +1,32 @@
+/*
+This is the style for the chatbot messages returned by the assistant.
+It is rendered with zero-md.
+*/
+:root {
+    color-scheme: only light;
+}
+.markdown-body {
+    background-color:transparent; 
+}
+
+
+a.easychatbotcitation {
+    font-style: italic;
+    padding: 2px 5px;
+    margin: 0px 2px;
+    background: lightblue;
+    border: lightblue 1px solid;
+    border-radius: 5px;
+    text-decoration: none;
+    color: black;
+    font-size: 0.7em;
+    text-wrap: nowrap;
+}
+a.easychatbotcitation:hover {
+    background: rgb(117, 190, 214);
+    border: rgb(117, 190, 214) 1px solid;
+    border-radius: 5px;
+    text-decoration: none;
+    color: black;
+    font-size: 0.7em;
+}

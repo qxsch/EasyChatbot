@@ -290,6 +290,38 @@ textarea.chatTextbox {
   }
 
 
+.chatMessage div.citationBox {
+}
+.chatMessage div.citationBox > b {
+    padding-right: 5px;
+    font-size: 0.7em;
+}
+.chatMessage div.citationBox > a > span {
+    font-style: italic;
+    font-size: 0.7em;
+    color: rgb(100, 100, 100);
+    padding: 0px 5px 0px 0px;
+}
+.chatMessage div.citationBox > a {
+    font-style: italic;
+    padding: 2px 5px;
+    margin: 0px 5px;
+    background: lightblue;
+    border: lightblue 1px solid;
+    border-radius: 5px;
+    text-decoration: none;
+    color: black;
+    font-size: 0.7em;
+    text-wrap: nowrap;
+}
+.chatMessage div.citationBox > a:hover {
+    background: rgb(117, 190, 214);
+    border: rgb(117, 190, 214) 1px solid;
+    border-radius: 5px;
+    text-decoration: none;
+    color: black;
+    font-size: 0.7em;
+}
 
 
 modal-dialog {

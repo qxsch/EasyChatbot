@@ -218,10 +218,12 @@ class ChatManager {
             nodes.forEach(function(node) {
                 var href = new URL(node.href);
                 if (href.host === "easy-chat-bot") {
-                    if(href.pathname.startsWith("/citation/")) {
+                    if(href.pathname.startsWith("/citation/")) {                        
                         const citationIndex = parseInt(href.pathname.substring(10));
                         const citation = choice.message.context.citations[citationIndex];
                         node.href="#";
+                        node.classList.add("easychatbotcitation");
+                        node.innerText = (citationIndex + 1);
                         node.title = citation.title;
                         //node.title = citation.storageaccount_blob;
                         if(citation.pages.length > 0) {
@@ -248,12 +250,51 @@ class ChatManager {
                 }
             });
         });
-        zmd.innerHTML ='<template data-append><style> .markdown-body { background-color:transparent; } </style></template>';
+        zmd.innerHTML = [
+            '<template data-append>',
+            '<link rel="stylesheet" href="/static/assets/css/zmd.css">',
+            '</template>'
+        ].join('\n');
         var md = document.createElement("script");
         md.type = "text/markdown";
         md.innerHTML = msg + "\n";
         zmd.appendChild(md);
         messageElement.appendChild(zmd);
+
+        var citationBox = document.createElement("div");
+        citationBox.classList.add("citationBox");
+        citationBox.innerHTML = "<b>Citations:</b>";
+        // Citation links
+        for(var i = 0; i < choice.message.context.citations.length; i++) {
+            var citation = choice.message.context.citations[i];
+            var citationElement = document.createElement("a");
+            citationElement.href = "#";
+            citationElement.innerText = "doc" + (i + 1);
+            citationElement.title = citation.title;
+            if(citation.pages.length > 0) {
+                if(citation.pages.length == 1) {
+                    citationElement.title  += " (page " + getPageNumberArrayAsString(citation.pages) + ")";
+                }
+                else {
+                    citationElement.title  += " (pages " + getPageNumberArrayAsString(citation.pages) + ")";
+                }
+            }
+            citationElement.innerText = citationElement.title
+            var numEl = document.createElement("span")
+            numEl.innerText = (i + 1);
+            citationElement.prepend(numEl);
+
+            if(citation.url.endsWith(".pdf")) {
+                citationElement.addEventListener("click", function(event) {
+                    event.preventDefault();
+                    console.log("Citation", citation);
+                    window.pdfRenderer.renderPDF(citation);
+                });
+                citationBox.appendChild(citationElement);
+            }
+        }
+        messageElement.appendChild(citationBox);
+        
 
         this.#chatBubblesContainer.appendChild(messageElement);
     }
