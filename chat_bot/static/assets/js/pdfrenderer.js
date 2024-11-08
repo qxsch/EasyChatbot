@@ -121,6 +121,17 @@ class StoragePDFRenderer {
         if(pdfBlob === null) {
             console.error("Failed to fetch the PDF Blob");
             this.#modalWindow.close();
+            return;
+        }
+        if(pdfBlob.size === 0) {
+            console.error("PDF Blob is empty");
+            this.#modalWindow.close();
+            return;
+        }
+        if(pdfBlob.type !== "application/pdf") {
+            console.error("PDF Blob is not a PDF file:", pdfBlob.type);
+            this.#modalWindow.close();
+            return;
         }
         var pdfData = await new Response(pdfBlob).arrayBuffer();
         var pdf = await pdfjsLib.getDocument({data: pdfData}).promise;
@@ -160,6 +171,8 @@ class StoragePDFRenderer {
         }
         loaderDiv.style.display = "none";
         rootDiv.style.display = "block";
+        // async sleep to allow the layout to update
+        await new Promise(r => setTimeout(r, 250));
         // Scroll to the first citation page
         if(citation.pages.length > 0 && citation.pages[0] > 0 && citation.pages[0] <= pdfPages) {
             document.getElementById("pdf-canvas-page" + citation.pages[0]).scrollIntoView();
