@@ -7,6 +7,7 @@ An Easy Chatbot Interface
 * Indexes the pdf documents with azure search (Vectorized, Hybrid and Semantic Search)
 * Uses OpenAI to generate responses to user input with links to the pdf documents (citation to page)
 * On click it will open the pdf document at the correct page
+* Supports multiple users with different roles (roles can be used to filter the search results and generate more relevant responses)
 
 
 ## Prerequisites
