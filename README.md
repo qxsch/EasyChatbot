@@ -75,7 +75,7 @@ It essential in case you want to filter the search results based on the user rol
 [
     {
         "role": "admin",
-        "Description": "Can find all documents because there is no filter and no blobPathStartsWith defined",
+        "Description": "Can find all documents because there is no filter and no blobPathStartsWith defined"
     },
     {
         "role": "limited-access-to-myfolder",

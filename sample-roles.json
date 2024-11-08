@@ -1,0 +1,16 @@
+[
+    {
+        "role": "admin",
+        "Description": "Can find all documents because there is no filter and no blobPathStartsWith defined"
+    },
+    {
+        "role": "user",
+        "Description": "Users can just search within myfolder in documents container of blob storage",
+        "blobPathStartsWith": "/myfolder/"
+    },
+    {
+        "role": "another-role",
+        "Description": "This role has the same permissions as the user role, but using a different filter",
+        "filter": "search.ismatch('\"*.blob.core.windows.net\\/documents\\/myfolder\\/*\"', 'metadata_storage_path')"
+    }
+]
