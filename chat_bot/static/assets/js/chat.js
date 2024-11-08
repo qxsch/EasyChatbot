@@ -266,8 +266,8 @@ class ChatManager {
         citationBox.innerHTML = "<b>Citations:</b>";
         // Citation links
         for(var i = 0; i < choice.message.context.citations.length; i++) {
-            var citation = choice.message.context.citations[i];
-            var citationElement = document.createElement("a");
+            const citation = choice.message.context.citations[i];
+            const citationElement = document.createElement("a");
             citationElement.href = "#";
             citationElement.innerText = "doc" + (i + 1);
             citationElement.title = citation.title;
@@ -280,7 +280,7 @@ class ChatManager {
                 }
             }
             citationElement.innerText = citationElement.title
-            var numEl = document.createElement("span")
+            const numEl = document.createElement("span")
             numEl.innerText = (i + 1);
             citationElement.prepend(numEl);
 
