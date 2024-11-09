@@ -14,6 +14,9 @@ param (
     [string]$FilesDir = "",
 
     [string]$azureSearchName = $null,
+    [string]$azureSearchSku = $null,
+    [int]$azureSearchReplicaCount = 0,
+    [int]$azureSearchPartitionCount = 0,
 
     [string]$azureOpenAiName = $null,
     [string]$gpt4oDeploymentName = $null,
@@ -81,6 +84,15 @@ if(-not $skipIacDeployment) {
     }
     if(-not($null -eq $azureSearchName -or $azureSearchName -eq "")) {
         $params["azureSearchName"] = $azureSearchName
+    }
+    if(-not($null -eq $azureSearchSku -or $azureSearchSku -eq "")) {
+        $params["azureSearchSku"] = $azureSearchSku
+    }
+    if($azureSearchReplicaCount -gt 0) {
+        $params["azureSearchReplicaCount"] = $azureSearchReplicaCount
+    }
+    if($azureSearchPartitionCount -gt 0) {
+        $params["azureSearchPartitionCount"] = $azureSearchPartitionCount
     }
     if(-not($null -eq $azureOpenAiName -or $azureOpenAiName -eq "")) {
         $params["azureOpenAiName"] = $azureOpenAiName

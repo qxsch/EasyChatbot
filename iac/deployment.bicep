@@ -29,6 +29,23 @@ param aiLocation string = 'swedencentral' // Location for ai resources
 @description('Name of the azure search.')
 param azureSearchName string = toLower('search-${resourceSuffix}') // The name of the Azure Search service
 
+@description('SKU of the azure search.')
+@allowed([
+  'basic'
+  'standard'
+  'standard2'
+  'standard3'
+])
+param azureSearchSku string = 'basic' // The SKU of the Azure Search service
+
+@description('Replica count of the azure search.')
+@minValue(1)
+param azureSearchReplicaCount int = 1 // The replica count of the Azure Search service
+
+@description('Partition count of the azure search.')
+@minValue(1)
+param azureSearchPartitionCount int = 1 // The partition count of the Azure Search service
+
 @description('Name of the azure openai.')
 param azureOpenAiName string = toLower('openai${resourceSuffix}') // The name of the Azure OpenAI service
 
@@ -163,14 +180,14 @@ resource azureSearch 'Microsoft.Search/searchServices@2024-03-01-preview' = {
   name: azureSearchName
   location: location
   sku: {
-    name: 'basic'
+    name: azureSearchSku
   }
   identity: {
     type: 'SystemAssigned'
   }
   properties: {
-    replicaCount: 1
-    partitionCount: 1
+    replicaCount: azureSearchReplicaCount
+    partitionCount: azureSearchPartitionCount
     semanticSearch: 'standard'
     disableLocalAuth: false
     authOptions: {
