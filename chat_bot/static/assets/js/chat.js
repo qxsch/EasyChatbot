@@ -108,11 +108,13 @@ class ChatManager {
     #addUiUserChatMessage(message) {
         this.#addUiChatMessage(message, "user", true);
         this.#addUiWaitingChatMessage();
+        this.#scrollToBottom();
         return;
     }
     
     #addUiErrorChatMessage(message) {
         this.#addUiChatMessage(message, "error", false);
+        this.#scrollToBottom();
         return;
     }
 
@@ -295,8 +297,18 @@ class ChatManager {
         }
         messageElement.appendChild(citationBox);
         
-
         this.#chatBubblesContainer.appendChild(messageElement);
+        this.#scrollToBottom();
+    }
+
+    #scrollToBottom() {
+        const el = this.#chatBubblesContainer;
+        window.setTimeout(function() {
+            if(el.lastChild !== null) {
+                el.lastChild.scrollIntoView({behavior: "smooth", block: "start", inline: "nearest"});
+            }
+        }, 100);
+        return;
     }
 }
 

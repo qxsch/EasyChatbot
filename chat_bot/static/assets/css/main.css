@@ -137,6 +137,7 @@ div.easyChatBotRoot div.chatBotArea {
     display: flex;
     flex-direction: column;
     padding: 5px;
+    max-height: calc(100vh - 40px - 8.5em)
 }
 
 div.easyChatBotRoot div.chatBotArea div.chatBubblesContainer {
