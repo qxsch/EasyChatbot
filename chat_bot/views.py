@@ -84,8 +84,6 @@ def api_chat():
     if not isinstance(current_user, ChatbotUser):
         logout_user()
         return redirect(url_for("login"))
-    if current_user.role not in ["admin", "user"]:
-        return jsonify({"success": False, "error": "Unauthorized"}), 403
     try:
         bs = BlobStorage()
         chatClient.setSearchFilterFromRole(current_user.getRole(), bs.getBaseUrl())
@@ -100,8 +98,6 @@ def api_blobstorage_pdf():
     if not isinstance(current_user, ChatbotUser):
         logout_user()
         return redirect(url_for("login"))
-    if current_user.role not in ["admin", "user"]:
-        return jsonify({"success": False, "error": "Unauthorized"}), 403
     # check for required parameters
     if not request.args.get("storageaccount_name") or not request.args.get("storageaccount_container") or not request.args.get("storageaccount_blob"):
         return jsonify({"success": False, "error": "Missing parameters"}), 400
