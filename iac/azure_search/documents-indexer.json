@@ -7,7 +7,9 @@
   "skillsetName": "documents-skillset",
   "targetIndexName": "documents",
   "disabled": null,
-  "schedule": null,
+  "schedule": {
+    "interval": "P1D"
+  },
   "parameters": {
     "batchSize": null,
     "maxFailedItems": null,
