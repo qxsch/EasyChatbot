@@ -6,5 +6,9 @@
   },
   "container": {
     "name": "documents"
+  },
+  "dataChangeDetectionPolicy": null,
+  "dataDeletionDetectionPolicy": {
+    "@odata.type": "#Microsoft.Azure.Search.NativeBlobSoftDeleteDeletionDetectionPolicy"
   }
 }

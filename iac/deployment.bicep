@@ -99,7 +99,16 @@ resource historyTable 'Microsoft.Storage/storageAccounts/tableServices/tables@20
 resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2021-04-01' = {
   name: 'default'
   parent: storageAccount
-  properties: {}
+  properties: {
+    containerDeleteRetentionPolicy: {
+      enabled: true
+      days: 7
+    }
+    deleteRetentionPolicy: {
+      days: 7
+      enabled: true
+    }
+  }
 }
 
 resource blobContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-04-01' = {
