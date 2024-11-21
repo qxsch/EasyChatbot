@@ -130,6 +130,7 @@ class EasyChatClient:
     _system_message : str = "You are an helpful assistant that helps finding information from documents."
     _system_few_shot_examples : List[str] = [ ]
     _final_system_message : str = "You are an helpful assistant that helps finding information from documents."
+    _temperature : float = 0.1
     
     def __init__(
         self,
@@ -218,6 +219,14 @@ class EasyChatClient:
         self._semantic_configuration = str(semantic_configuration)
 
 
+    def setTemperature(self, temperature : float):
+        if temperature < 0 or temperature > 2:
+            raise ValueError("Temperature must be between 0 and 2")
+        self._temperature = temperature
+
+    def getTemperature(self) -> float:
+        return self._temperature
+
     def setSearchFilterFromRole(self, role : ChatbotRole, storage_base_url : str = ""):
         f = ""
         if not (role.getFilter() is None):
@@ -300,7 +309,7 @@ class EasyChatClient:
         return self._open_ai_client.chat.completions.create(
             model = self._open_ai_deployment_name,
             messages = msgs,
-            temperature=0.1, # recommended value is 0 or close to 0 (it can be between 0 and 2)
+            temperature= self._temperature, # recommended value is 0 or close to 0 (it can be between 0 and 2)
             extra_body= {
                 "data_sources": [ dataSource ]
             },
