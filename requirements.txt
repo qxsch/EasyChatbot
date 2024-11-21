@@ -9,3 +9,4 @@ azure-storage-blob
 python-dateutil
 flask-login
 openai
+sseclient-py
