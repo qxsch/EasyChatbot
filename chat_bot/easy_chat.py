@@ -222,7 +222,7 @@ class EasyChatClient:
     def setTemperature(self, temperature : float):
         if temperature < 0 or temperature > 2:
             raise ValueError("Temperature must be between 0 and 2")
-        self._temperature = temperature
+        self._temperature = float(temperature)
 
     def getTemperature(self) -> float:
         return self._temperature
@@ -309,7 +309,7 @@ class EasyChatClient:
         return self._open_ai_client.chat.completions.create(
             model = self._open_ai_deployment_name,
             messages = msgs,
-            temperature= self._temperature, # recommended value is 0 or close to 0 (it can be between 0 and 2)
+            temperature= float(self._temperature), # recommended value is 0 or close to 0 (it can be between 0 and 2)
             extra_body= {
                 "data_sources": [ dataSource ]
             },
