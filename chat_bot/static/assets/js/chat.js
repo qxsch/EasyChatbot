@@ -6,6 +6,45 @@ function getPageNumberArrayAsString(pages) {
     return a.join(", ");
 }
 
+class MarkdownRenderer {
+    #mdElement = null;
+    #mdPrependContent = "";
+    #mdAppendContent = "";
+    #mdContent = "";
+    constructor(mdElement, mdPrependContent = "", mdContent = "", mdAppendContent = "") {
+        this.#mdElement = mdElement;
+        this.#mdPrependContent = String(mdPrependContent);
+        if(mdContent !== undefined && mdContent !== null) {
+            this.#mdContent = String(mdContent);
+        }
+        this.#mdAppendContent = String(mdAppendContent);
+    }
+
+    getContent() {
+        return this.#mdContent;
+    }
+
+    addContent(content) {
+        if(content === undefined || content === null) {
+            return;
+        }
+        this.#mdContent += String(content);
+        this.renderMarkdown();
+        return;
+    }
+
+    renderMarkdown() {
+        this.#mdElement.innerHTML = [
+            this.#mdPrependContent,
+            this.#mdContent,
+            this.#mdAppendContent,
+            ""
+        ].join("\n");
+        return;
+    }
+}
+
+
 class ChatManager {
     #submitBtn = null;
     #clearBtn = null;
@@ -13,13 +52,29 @@ class ChatManager {
     #chatBubblesContainer = null;
     #chatMessages = [];
     #restorePromptOnFailure = true;
+    #streaming = true;
+    #submitting = false;
+
     constructor(
+        streaming = null,
+        restorePromptOnFailure = true,
         submitBtn = null,
         clearBtn = null,
         chatTextBox = null,
-        chatBubblesContainer = null,
-        restorePromptOnFailure = true
+        chatBubblesContainer = null
     ) {
+        if(streaming === null) {
+            if(window.chatbot_configuration && "streaming" in window.chatbot_configuration) {
+                this.#streaming = Boolean(window.chatbot_configuration.streaming);
+            }
+            else {
+                this.#streaming = true;
+            }
+        }
+        else {
+            this.#streaming = Boolean(streaming);
+        }
+        console.log("Chatbot Streaming", this.#streaming);
         this.#submitBtn = this.#getHtmlElement(submitBtn, "chatSubmitBtn");
         this.#clearBtn = this.#getHtmlElement(clearBtn, "chatClearBtn");
         this.#chatTextBox = this.#getHtmlElement(chatTextBox, "chatTextBox");
@@ -128,6 +183,7 @@ class ChatManager {
     async clearChat() {
         this.#chatMessages = [];
         this.#chatBubblesContainer.innerHTML = "";
+        this.#submitting = false;
         try {
             window.pdfRenderer.clearCache();
         }
@@ -137,7 +193,157 @@ class ChatManager {
         return;
     }
 
+
+    async #fetchFromStreamingApi(message) {
+        const selectedChoice = 0;
+        let mdRenderer = null;
+
+        const response = await fetch("/api/chat/stream", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                "messages": this.#chatMessages
+            })
+        });
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let { value: chunk, done: readerDone } = await reader.read();
+        let buffer = "";
+
+        try {
+            while(!readerDone) {
+                buffer += decoder.decode(chunk, { stream: true });
+                let lines = buffer.split("\n");
+                buffer = lines.pop(); // keep the last (partial) line in the buffer
+
+                if(lines.length > 0) {
+                    if(mdRenderer === null) {
+                        // we have no renderer, so we need to create the renderer and process the first choice (with citations)
+                        while(lines.length > 0) {
+                            let line = lines.shift().trim();
+                            if(line != "") {
+                                var data = JSON.parse(line);
+                                if(data === undefined || data === null || "error" in data) {
+                                    console.log("JSON Data", data);
+                                    throw new Error("Received invalid response");
+                                }
+                                if(!("choices" in data)) {
+                                    console.log("JSON Data", data);
+                                    throw new Error("Response does not contain choices");
+                                }
+                                mdRenderer = await this.#processChoice(data.choices[selectedChoice]);
+                                break;
+                            }
+                        }
+                    }
+                    // we have a renderer, so we need to merge the content
+                    let mergedContent = "";
+                    while(lines.length > 0) {
+                        let line = lines.shift().trim();
+                        if(line != "") {
+                            var data = JSON.parse(line);
+                            if(data === undefined || data === null || "error" in data) {
+                                console.log("JSON Data", data);
+                                throw new Error("Received invalid response");
+                            }
+                            if(!("choices" in data)) {
+                                console.log("JSON Data", data);
+                                throw new Error("Response does not contain choices");
+                            }
+                            if(data.choices[selectedChoice].delta.content !== undefined && data.choices[selectedChoice].delta.content !== null) {
+                                mergedContent += String(data.choices[selectedChoice].delta.content);
+                            }
+                        }
+                    }
+                    if(mergedContent != "") {
+                        mdRenderer.addContent(mergedContent);
+                    }
+                }
+                ({ value: chunk, done: readerDone } = await reader.read());
+            }
+            buffer = buffer.trim();
+            if(buffer != "") {
+                console.log("Buffer", buffer);
+                var data = JSON.parse(line);
+                if(data === undefined || data === null || "error" in data) {
+                    console.log("JSON Data", data);
+                    throw new Error("Received invalid response");
+                }
+                if(!("choices" in data)) {
+                    console.log("JSON Data", data);
+                    throw new Error("Response does not contain choices");
+                }
+                if(data.choices[selectedChoice].delta.content !== undefined && data.choices[selectedChoice].delta.content !== null) {
+                    mdRenderer.addContent(data.choices[selectedChoice].delta.content);
+                }
+            }
+        }
+        catch(e) {
+            console.error("Error while processing choice", e);
+            return false;
+        }
+
+        this.#chatMessages.pop();
+        this.#chatMessages.push({
+            "role": "assistant",
+            "content": mdRenderer.getContent()
+        });
+
+        if(mdRenderer !== null) {
+            window.setTimeout(function() {
+                mdRenderer.addContent("\n");
+            }, 50);
+        }
+        this.#scrollToBottom();
+
+        return true;
+    }
+
+    async #fetchFromDefaultApi(message) {
+        const response = await fetch("/api/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                "messages": this.#chatMessages
+            })
+        });
+        if(response.status != 200) {
+            console.log("Received unexpected status", response.status);
+        }
+        var data = await response.json();
+        // check if the response is valid
+        if(data === undefined || data === null || "error" in data) {
+            console.log("JSON Data", data);
+            throw new Error("Received invalid response");
+        }
+        if(!("choices" in data)) {
+            console.log("JSON Data", data);
+            throw new Error("Response does not contain choices");
+        }
+        if(data.choices.length > 1) {
+            console.log("JSON Data contains multiple choices", data);
+        }
+        const selectedChoice = 0;
+        try {
+            await this.#processChoice(data.choices[selectedChoice]);
+        }
+        catch(e) {
+            console.error("Error while processing choice", e);
+            return false;
+        }
+        return true;
+    }
+
     async submitMessage() {
+        // still chatting
+        if(this.#submitting) {
+            return;
+        }
+        this.#submitting = true;
         var message = this.#chatTextBox.value;
         if(typeof message !== "string") {
             return;
@@ -151,37 +357,11 @@ class ChatManager {
         this.#chatTextBox.value = "";
 
         try {
-            var response = await fetch("/api/chat", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    "messages": this.#chatMessages
-                })
-            });
-            if(response.status != 200) {
-                console.log("Received unexpected status", response.status);
+            if(this.#streaming) {
+                await this.#fetchFromStreamingApi(message);
             }
-            var data = await response.json();
-            // check if the response is valid
-            if(data === undefined || data === null || "error" in data) {
-                console.log("JSON Data", data);
-                throw new Error("Received invalid response");
-            }
-            if(!("choices" in data)) {
-                console.log("JSON Data", data);
-                throw new Error("Response does not contain choices");
-            }
-            if(data.choices.length > 1) {
-                console.log("JSON Data contains multiple choices", data);
-            }
-            const selectedChoice = 0;
-            try {
-                await this.#processChoice(data.choices[selectedChoice]);
-            }
-            catch(e) {
-                console.error("Error while processing choice", e);
+            else {
+                await this.#fetchFromDefaultApi(message);
             }
         }
         catch(e) {
@@ -193,21 +373,28 @@ class ChatManager {
             console.error("Error while sending message", e);
             return;
         }
+        finally {
+            this.#submitting  = false;
+        }
         return;
     }
 
     async #processChoice(choice) {
         this.#removeUiWaitingChatMessage();
-        this.#chatMessages.push({
-            "role": "assistant",
-            "content": choice.message.content
-        });
-
-        var msg = choice.message.content + "\n\n";
-        for(var i = 0; i < choice.message.context.citations.length; i++) {
-            msg += "[doc" + (i + 1) + "]: " + "https://easy-chat-bot/citation/" + i + "\n";
+        if((choice.delta !== undefined && choice.delta !== null)
+            && (choice.message === undefined || choice.message === null)) {
+            choice.message = choice.delta;
         }
 
+        this.#chatMessages.push({
+            "role": "assistant",
+            "content": String(choice.message.content)
+        });
+
+        var appendContent = "\n\n";
+        for(var i = 0; i < choice.message.context.citations.length; i++) {
+            appendContent += "[doc" + (i + 1) + "]: " + "https://easy-chat-bot/citation/" + i + "\n";
+        }
         
         var messageElement = document.createElement("div");
         messageElement.classList.add("chatMessage");
@@ -217,6 +404,7 @@ class ChatManager {
         zmd.addEventListener('zero-md-rendered', function() {
             console.log("configuring markdown links");
             var nodes = zmd.shadowRoot.querySelectorAll('a[href]');
+            var currentUrl = new URL(window.location.href);
             nodes.forEach(function(node) {
                 var href = new URL(node.href);
                 if (href.host === "easy-chat-bot") {
@@ -255,11 +443,20 @@ class ChatManager {
         zmd.innerHTML = [
             '<template data-append>',
             '<link rel="stylesheet" href="/static/assets/css/zmd.css">',
+            '<style>',
+            ' :root {color-scheme: only light;}',
+            ' .markdown-body { background-color:transparent; min-height: 10px;} ',
+            '</style>',
             '</template>'
         ].join('\n');
         var md = document.createElement("script");
         md.type = "text/markdown";
-        md.innerHTML = msg + "\n";
+        if(choice.message.content === undefined || choice.message.content === null) {
+            md.innerHTML = "";
+        }
+        else {
+            md.innerHTML = choice.message.content + appendContent + "\n";
+        }
         zmd.appendChild(md);
         messageElement.appendChild(zmd);
 
@@ -299,6 +496,7 @@ class ChatManager {
         
         this.#chatBubblesContainer.appendChild(messageElement);
         this.#scrollToBottom();
+        return new MarkdownRenderer(md, "", choice.message.content, appendContent);
     }
 
     #scrollToBottom() {
@@ -312,6 +510,6 @@ class ChatManager {
     }
 }
 
-window.chatbot = new ChatManager();
 
-
+window.chatbot = new ChatManager();  // enable streaming
+// window.chatbot = new ChatManager(false);  // disable streaming

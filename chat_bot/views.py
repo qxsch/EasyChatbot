@@ -1,12 +1,11 @@
 from datetime import datetime, timedelta
 import json, io, hashlib, os
-from flask import Flask, render_template, request, jsonify, redirect, url_for, send_file
+from flask import Flask, render_template, request, jsonify, redirect, url_for, send_file, stream_with_context, Response
 from . import app, all_defined_users
 from .iam import ChatbotUser
 from flask_login import login_user, login_required, logout_user, current_user
 from .easy_chat import EasyChatClient, dict_to_chat_messages
 from .azurestorage import BlobStorage
-
 
 chatClient = EasyChatClient()
 # get the path of the current script
@@ -31,6 +30,18 @@ except:
     pass
 
 
+def getChatbotConfig() -> dict:
+    c = {
+        "streaming": os.getenv("CHATBOT_STREAMING")
+    }
+    if c["streaming"] is None:
+        c["streaming"] = True
+    elif c["streaming"].lower() in [ "false", "off", "no", "disabled", "disable" ]:
+        c["streaming"] = False
+    else:
+        c["streaming"] = True
+    return c
+
 
 #region -------- WEB/UI ENDPOINTS --------
 @app.route("/")
@@ -40,7 +51,7 @@ def home():
         return redirect(url_for("login"))
     if not isinstance(current_user, ChatbotUser):
         return redirect(url_for("login"))
-    return render_template("index.html", user=current_user)
+    return render_template("index.html", user=current_user, chatbot_config=getChatbotConfig())
 
 
 @app.route("/logout")
@@ -87,10 +98,35 @@ def api_chat():
     try:
         bs = BlobStorage()
         chatClient.setSearchFilterFromRole(current_user.getRole(), bs.getBaseUrl())
-        return jsonify(chatClient.chat(dict_to_chat_messages(request.get_json()))), 200
+        return jsonify(
+            chatClient.chat(
+                dict_to_chat_messages(request.get_json())
+            )
+        ), 200
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+@login_required
+@app.route("/api/chat/stream", methods=["POST"])
+def api_chat_stream():
+    if not isinstance(current_user, ChatbotUser):
+        logout_user()
+        return redirect(url_for("login"))
+    try:
+        bs = BlobStorage()
+        chatClient.setSearchFilterFromRole(current_user.getRole(), bs.getBaseUrl())
+        return Response(
+            stream_with_context(
+                chatClient.streamedChat(
+                    dict_to_chat_messages(request.get_json()),
+                    outputFormat = "json"
+                )
+            ),
+            200,
+            content_type="application/json"
+        )
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @login_required
 @app.route("/api/blobstorage/file", methods=["GET"])

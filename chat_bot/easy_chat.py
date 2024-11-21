@@ -316,10 +316,15 @@ class EasyChatClient:
             stream=streamed
         )
 
-    def streamedChat(self, messages: List[EasyChatMessage]) -> Generator[dict]:
-        for msg in self._chat(messages, True):
-            yield get_json_serializable_response(msg)
-            #yield msg
+    def streamedChat(self, messages: List[EasyChatMessage], outputFormat : str = "dict") -> Generator[Union[dict, str]]:
+        if outputFormat == "json":
+            for msg in self._chat(messages, True):
+                yield (json.dumps(get_json_serializable_response(msg)) + "\n")
+        elif outputFormat == "dict":
+            for msg in self._chat(messages, True):
+                yield get_json_serializable_response(msg)
+        else:
+            raise ValueError("outputFormat must be 'json' or 'dict'")
 
     def chat(self, messages: List[EasyChatMessage]) -> dict:       
         return get_json_serializable_response(self._chat(messages, False))

@@ -12,13 +12,11 @@ Easy Chat Bot
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.7.76/build/pdf.worker.mjs';
     </script>
     <script type="module" src="{{ url_for('static', filename='assets/js/pdfrenderer.js') }}"></script>
-    <!--<script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.7.76/pdf.min.mjs"></script>
-    <script type="module">
-
-        var { pdfjsLib } = globalThis;
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.7.76/pdf.worker.mjs';
+    <script>
+        window.chatbot_configuration = {
+            streaming: JSON.parse('{% if chatbot_config["streaming"] %}true{% else %}false{% endif %}')
+        };
     </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.7.76/pdf_viewer.min.css" />-->
 {% endblock %}
 {% block content %}
 <h1>Chat</h1>

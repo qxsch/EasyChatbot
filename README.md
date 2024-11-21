@@ -127,6 +127,7 @@ You don't need to set the environment variables, since the [deployment.bicep](ia
 | Variable Name | Description | Example |
 | --- | --- | --- |
 | CHATBOT_SECRET_KEY | Required, Secret Key for the chatbot interface (used for user login cookie) | keepItSecretAndDoNotTellAnyone |
+| CHATBOT_STREAMING | Optional, Enable or disable streaming (default: true) | false |
 | AZURE_STORAGEBLOB_CONNECTIONSTRING | Required for storage account key auth (if not using AZURE_STORAGEBLOB_RESOURCEENDPOINT)  |  DefaultEndpointsProtocol=https;AccountName=your_account_name;AccountKey=your_account_key;EndpointSuffix=core.windows.net |
 | AZURE_STORAGEBLOB_RESOURCEENDPOINT | Required for default credential Entra ID auth (if not using AZURE_STORAGEBLOB_CONNECTIONSTRING) | https://your_account_name.blob.core.windows.net |
 | AZURE_STORAGEBLOB_CONTAINER | Optional Azure Storage Blob Container Name  (Default: documents) | documents |

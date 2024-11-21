@@ -9,3 +9,4 @@ env
 /pdf_documents/**/*
 !/pdf_documents/README.md
 /users.json
+/chat_bot/openaimocks.py
