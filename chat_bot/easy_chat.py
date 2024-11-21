@@ -1,8 +1,8 @@
 import os, re
 from urllib.parse import unquote, quote
-from typing import Union, List
+from typing import Union, List, Generator
 from openai import AzureOpenAI
-from openai.types.chat import ChatCompletion
+from openai.types.chat import ChatCompletion, ChatCompletionChunk
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 from .iam import ChatbotRole
 import json
@@ -18,8 +18,11 @@ AZURESEARCH_API_KEY         Optional, if not set will use managed identity of op
 AZURESEARCH_INDEX_NAME      Optiona, default is 'documents'
 """
 
-
-def get_json_serializable_data(completion : ChatCompletion) -> dict:
+def get_json_serializable_response(completion : Union[ChatCompletion, ChatCompletionChunk]) -> dict:
+    if isinstance(completion, ChatCompletionChunk):
+        isStreamed = True
+    else:
+        isStreamed = False
     data = {
         "choices": [ ],
         "created": completion.created,
@@ -28,44 +31,79 @@ def get_json_serializable_data(completion : ChatCompletion) -> dict:
         "object": completion.object,
         "system_fingerprint": completion.system_fingerprint,
         "usage": {
-            "completion_tokens":  completion.usage.completion_tokens,
-            "prompt_tokens":  completion.usage.prompt_tokens,
-            "total_tokens":  completion.usage.total_tokens,
+            "prompt_tokens":  None,
+            "completion_tokens":  None,
+            "total_tokens":  None
         }
     }
+    if completion.usage:
+        if completion.usage.prompt_tokens:
+            data["usage"]["prompt_tokens"] = completion.usage.prompt_tokens
+        if completion.usage.completion_tokens:
+            data["usage"]["completion_tokens"] = completion.usage.completion_tokens
+        if completion.usage.total_tokens:
+            data["usage"]["total_tokens"] = completion.usage.total_tokens
+
     for choice in completion.choices:
-        c = {
-            "finish_reason": choice.finish_reason,
-            "index": choice.index,
-            #"logprobs": choice.logprobs,
-            "message": {
-                "refusal": choice.message.refusal,
-                "role": choice.message.role,
-                "content": choice.message.content,
-                "end_turn": choice.message.end_turn,
-                "context": choice.message.context
-                # other fields: function_call, tool_calls, audio
+        if isStreamed:
+            currentKey = "delta"
+            c = {
+                "finish_reason": choice.finish_reason,
+                "index": choice.index,
+                "end_turn": choice.end_turn,
+                #"logprobs": choice.logprobs,
+                currentKey: {
+                    "refusal": choice.delta.refusal,
+                    "role": choice.delta.role,
+                    "content": choice.delta.content
+                    # other fields: function_call, tool_calls, audio
+                }
             }
-        }
-        # check if itent exists and is a string
-        if "intent" in c["message"]["context"] and isinstance(c["message"]["context"]["intent"], str):
+            # add context if exists
             try:
-                c["message"]["context"]["intent"] = json.loads( c["message"]["context"]["intent"])
+                c[currentKey]["context"] = choice.delta.context
             except:
                 pass
-        # check if citations exists and parse the information on pages and storage account
-        if "citations" in c["message"]["context"] and isinstance(c["message"]["context"]["citations"], list):
-            for citation in c["message"]["context"]["citations"]:
+        else:
+            currentKey = "message"
+            c = {
+                "finish_reason": choice.finish_reason,
+                "index": choice.index,
+                "end_turn": choice.message.end_turn,
+                #"logprobs": choice.logprobs,
+                currentKey: {
+                    "refusal": choice.message.refusal,
+                    "role": choice.message.role,
+                    "content": choice.message.content
+                    # other fields: function_call, tool_calls, audio
+                }
+            }
+            # add context if exists
+            try:
+                c[currentKey]["context"] = choice.message.context
+            except:
+                pass
+        # check if context exists 
+        if "context" in c[currentKey]:
+            # check if itent exists and is a string
+            if "intent" in c[currentKey]["context"] and isinstance(c[currentKey]["context"]["intent"], str):
                 try:
-                    citation["pages"] = re.findall(r'_pages_(\d+)', citation["filepath"] )
-                    if citation["url"].lower().startswith("http"):
-                        urlParts = citation["url"].split("/")
-                        if len(urlParts) >= 4:
-                            citation["storageaccount_name"] = urlParts[2].split(".")[0]
-                            citation["storageaccount_container"] = urlParts[3]
-                            citation["storageaccount_blob"] = unquote("/".join(urlParts[4:]).split("?")[0].split("#")[0])
+                    c[currentKey]["context"]["intent"] = json.loads( c[currentKey]["context"]["intent"])
                 except:
                     pass
+            # check if citations exists and parse the information on pages and storage account
+            if "citations" in c[currentKey]["context"] and isinstance(c[currentKey]["context"]["citations"], list):
+                for citation in c[currentKey]["context"]["citations"]:
+                    try:
+                        citation["pages"] = re.findall(r'_pages_(\d+)', citation["filepath"] )
+                        if citation["url"].lower().startswith("http"):
+                            urlParts = citation["url"].split("/")
+                            if len(urlParts) >= 4:
+                                citation["storageaccount_name"] = urlParts[2].split(".")[0]
+                                citation["storageaccount_container"] = urlParts[3]
+                                citation["storageaccount_blob"] = unquote("/".join(urlParts[4:]).split("?")[0].split("#")[0])
+                    except:
+                        pass
         data["choices"].append(c)
     return data
 
@@ -213,7 +251,7 @@ class EasyChatClient:
     def getSystemMessage(self) -> str:
         return self._system_message
 
-    def chat(self, messages: List[EasyChatMessage]) -> dict:
+    def _chat(self, messages: List[EasyChatMessage], streamed : bool = False):
         dataSource = {
             "type": "azure_search",
             "parameters": {
@@ -258,16 +296,24 @@ class EasyChatClient:
                 "role": message.role,
                 "content": message.content
             })
-        # creating the completion
-        completion = self._open_ai_client.chat.completions.create(
+        # return the completion
+        return self._open_ai_client.chat.completions.create(
             model = self._open_ai_deployment_name,
             messages = msgs,
             temperature=0.1, # recommended value is 0 or close to 0 (it can be between 0 and 2)
             extra_body= {
                 "data_sources": [ dataSource ]
-            }
+            },
+            stream=streamed
         )
-        return get_json_serializable_data(completion)
+
+    def streamedChat(self, messages: List[EasyChatMessage]) -> Generator[dict]:
+        for msg in self._chat(messages, True):
+            yield get_json_serializable_response(msg)
+            #yield msg
+
+    def chat(self, messages: List[EasyChatMessage]) -> dict:       
+        return get_json_serializable_response(self._chat(messages, False))
 
 
 def dict_to_chat_messages(data: dict) -> List[EasyChatMessage]:
