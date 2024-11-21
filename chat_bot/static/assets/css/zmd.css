@@ -7,6 +7,7 @@ It is rendered with zero-md.
 }
 .markdown-body {
     background-color:transparent; 
+    min-height: 10px;
 }
 
 
