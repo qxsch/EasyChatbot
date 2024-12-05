@@ -316,7 +316,7 @@ class EasyChatClient:
             stream=streamed
         )
 
-    def streamedChat(self, messages: List[EasyChatMessage], outputFormat : str = "dict") -> Generator[Union[dict, str]]:
+    def streamedChat(self, messages: List[EasyChatMessage], outputFormat : str = "dict") -> Generator[Union[dict, str], None, None]:
         if outputFormat == "json":
             for msg in self._chat(messages, True):
                 yield (json.dumps(get_json_serializable_response(msg)) + "\n")

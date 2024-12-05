@@ -65,7 +65,8 @@ param adaDeploymentCapacity int = 350 // The capacity of the Azure OpenAI ada de
 var linuxFxVersion = 'PYTHON|3.12' // The runtime stack of web app
 var appServicePlanName = toLower('plan-${webAppName}')
 var storageAccountName = toLower('storage${resourceSuffix}')
-
+var storageAccountSuffix = environment().suffixes.storage
+var searchSuffix = 'search.windows.net'
 
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
@@ -149,11 +150,11 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
       appSettings: [
 //        {
 //          name: 'AZURE_STORAGEBLOB_CONNECTIONSTRING'
-//          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${storageAccount.listKeys().keys[0].value};EndpointSuffix=core.windows.net'
+//          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${storageAccount.listKeys().keys[0].value};EndpointSuffix=${storageAccountSuffix}'
 //        }
         {
           name: 'AZURE_STORAGEBLOB_RESOURCEENDPOINT'
-          value: 'https://${storageAccount.name}.blob.core.windows.net'
+          value: 'https://${storageAccount.name}.blob.${storageAccountSuffix}'
         }
         {
           name: 'OPENAI_API_BASE'
@@ -164,8 +165,12 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
           value: adaDeploymentName
         }
         {
+          name: 'OPENAI_DEPLOYMENT_NAME'
+          value: gpt4oDeploymentName
+        }
+        {
           name: 'AZURESEARCH_API_BASE'
-          value: 'https://${azureSearchName}.search.windows.net'
+          value: 'https://${azureSearchName}.${searchSuffix}'
         }
         {
           name: 'AZURESEARCH_INDEX_NAME'
@@ -457,4 +462,4 @@ output storageAccountName string = storageAccount.name
 // output the endpoint of the azure openai
 output azureOpenAiEndpoint string = azureOpenAi.properties.endpoint
 // output the endpoit of the azure search
-output azureSearchEndpoint string = 'https://${azureSearchName}.search.windows.net'
+output azureSearchEndpoint string = 'https://${azureSearchName}.${searchSuffix}'
