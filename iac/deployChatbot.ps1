@@ -184,6 +184,9 @@ $zipPackagePath = Join-Path $scriptPath "chat_bot.zip"
 if(Test-Path $zipPackagePath) {
     Remove-Item $zipPackagePath -Force
 }
+# remove pycache directories
+Get-ChildItem $botRoot -Recurse | Where-Object { $_.Name -eq '__pycache__' } | Remove-Item -Recurse -Force
+# create the zip package
 Get-ChildItem $botRoot | Where-Object { $_.Name -notin @( "iac", "pdf_documents" ) } | Compress-Archive -DestinationPath $zipPackagePath
 Write-Host "Publishing the zip package to the web app"
 $webApps | ForEach-Object {
