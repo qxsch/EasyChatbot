@@ -112,7 +112,14 @@ if(-not $skipIacDeployment) {
     if($adaDeploymentCapacity -gt 0) {
         $params["adaDeploymentCapacity"] = $adaDeploymentCapacity
     }
-    $deployment = New-AzResourceGroupDeployment @params -Name "chatbot" -ErrorAction Stop
+    $evx = @()
+    $deployment = New-AzResourceGroupDeployment @params -Name "chatbot"  -ErrorAction Continue -ErrorVariable +evx
+    if($null -eq $deployment) {
+        foreach($ev in ($evx | Where-Object { $_.Exception.Message.Contains('soft-deleted') })) {
+            Write-Host -ForegroundColor Yellow "Soft deleted resource found:`n$($ev.Exception.Message)"
+        }
+        throw "Deployment failed"
+    }
     Write-Host "Azure resource group deployment completed"
     Write-Host ( "  - Web App Name:         " + $deployment.Outputs.webAppName.Value )
     Write-Host ( "  - Web App URL:          https://" + $deployment.Outputs.webAppUrl.Value )
