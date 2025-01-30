@@ -10,7 +10,7 @@ param webAppName string = toLower('chat-${resourceSuffix}') // Generate unique S
   'B2'
   'P0V3'
 ])
-param sku string = 'B1' // The SKU of App Service Plan
+param sku string = 'B2' // The SKU of App Service Plan
 
 @description('The instance size of the hosting plan (small, medium, or large).')
 @allowed([
