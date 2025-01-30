@@ -169,7 +169,11 @@ class AzureSearchDeployment {
                         Write-Host -ForegroundColor Red " - Failed to create the indexer after 15 attempts"
                         throw $_
                     }    
-                    elseif($_.Exception.Message -like "*Unable to retrieve blob container for account*") {
+                    elseif(
+                        $_.Exception.Message -like "*Unable to retrieve blob container for account*" -or 
+                        $_.Exception.Message -like "*Credentials provided in the connection string are invalid or have expired*" -or
+                        $_.Exception.Message -like "*Error with data source*"
+                    ) {
                         Write-Host -ForegroundColor Yellow " - Entra ID roles are not yet propagated. Waiting 1 minute before retrying"
                         Start-Sleep -Seconds 60
                     }
