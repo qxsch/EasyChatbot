@@ -139,7 +139,7 @@ You don't need to set the environment variables, since the [deployment.bicep](ia
 | AZURESEARCH_API_BASE | Required, Azure Search API Base URL | https://myazuresearchname.search.windows.net |
 | AZURESEARCH_API_KEY | Optional, if not set will use managed identity of open ai service | your_azuresearch_api_key |
 | AZURESEARCH_INDEX_NAME | Optional, default is 'documents' | documents |
-| USE_AUTH_TYPE | Optional, possible values are 'local' andn 'aad'. Default is 'local' | local |
+| USE_AUTH_TYPE | Optional, possible values are 'local' and 'aad'. Default is 'local' | local |
 
 
 Summarized:
