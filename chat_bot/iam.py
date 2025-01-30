@@ -1,6 +1,19 @@
-import os
+import os, base64, json
 from typing import Union
-from flask_login import LoginManager, UserMixin
+from flask_login import LoginManager, UserMixin, current_user, logout_user
+from flask import request, current_app, redirect, url_for
+from functools import wraps
+
+
+
+USE_AUTH_TYPE= os.environ.get("USE_AUTH_TYPE", "local").lower().strip()
+# synonyms for aad
+if USE_AUTH_TYPE == "entra" or USE_AUTH_TYPE == "entraid":
+    USE_AUTH_TYPE = "aad"
+# just allow local or aad -> default to local
+if USE_AUTH_TYPE != "local" and USE_AUTH_TYPE != "aad":
+    USE_AUTH_TYPE = "local"
+
 
 
 class ChatbotRole:
@@ -90,6 +103,109 @@ def create_all_users():
     # TODO: integrate with entra id
     return allUsers
 
-# create the users
-all_defined_users = create_all_users()
+# create the users in case of local auth
+if USE_AUTH_TYPE == "local":
+    all_defined_users = create_all_users()
+else:
+    all_defined_users = { }
+
+
+
+
+class EntraEasyAuthInfo:
+    _authInfo = None
+    _groups = []
+    _username = ""
+    _userId = ""
+    _authenticated = False
+
+    def __init__(self, headers : dict):
+        if "x-ms-client-principal" in headers:
+            try:
+                self._authInfo = json.loads(base64.b64decode(headers["x-ms-client-principal"]).decode("utf-8"))
+            except:
+                self._authInfo = None
+        self._authInfo = json.loads(base64.b64decode(headers["x-ms-client-principal"]).decode("utf-8"))
+
+        self._groups = []
+        self._username = ""
+        self._userId = ""
+        self._authenticated = False
+
+        if not (self._authInfo is None) and "auth_typ" in self._authInfo and self._authInfo["auth_typ"] == "aad" and "claims" in self._authInfo:
+            for c in self._authInfo['claims']:
+                if c["typ"] == "groups":
+                    self._groups.append(c["val"])
+                if c["typ"] == "preferred_username":
+                    self._username = c["val"]
+                if c["typ"] == "http://schemas.microsoft.com/identity/claims/objectidentifier":
+                    self._userId = c["val"]
+        if self._username != "" and self._userId != "":
+            self._authenticated = True
+
+    def getUserId(self):
+        try:
+            return str(self._userId)
+        except:
+            return ""
+    def getUserName(self):
+        try:
+            return str(self._username)
+        except:
+            return ""
+    def getGroups(self):
+        try:
+            return self._groups
+        except:
+            return [ ]
+        
+    def isAuthenticated(self):
+        return self._authenticated
+
+
+def iam_is_authenticated() -> bool:
+    if USE_AUTH_TYPE == "local":
+        if not isinstance(current_user, ChatbotUser):
+            return False
+        return current_user.is_authenticated
+    elif USE_AUTH_TYPE == "aad":
+        u = iam_get_current_user()
+        if u is None:
+            return False
+        return u.is_authenticated
+    return False
+
+
+def iam_get_current_user() -> Union[None, ChatbotUser]:
+    if USE_AUTH_TYPE == "local":
+        if not isinstance(current_user, ChatbotUser):
+            return None
+        else:
+            return current_user
+    elif USE_AUTH_TYPE == "aad":
+        auth = EntraEasyAuthInfo(request.headers)
+        if auth.isAuthenticated():
+            role = "user"
+            for r in auth.getGroups():
+                if r in all_defined_roles:
+                    role = r
+                    break
+            u = ChatbotUser(auth.getUserName(), "", role)
+            return u
+    return None
+
+
+
+
+def iam_login_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if request.method in [ "OPTIONS" ]:
+            pass
+        else:
+            if not iam_is_authenticated():
+                return redirect(url_for("login"))
+        return func(*args, **kwargs)
+
+    return decorated_view
 

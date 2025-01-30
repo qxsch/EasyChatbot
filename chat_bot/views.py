@@ -2,8 +2,8 @@ from datetime import datetime, timedelta
 import json, io, hashlib, os
 from flask import Flask, render_template, request, jsonify, redirect, url_for, send_file, stream_with_context, Response
 from . import app, all_defined_users
-from .iam import ChatbotUser
-from flask_login import login_user, login_required, logout_user, current_user
+from .iam import ChatbotUser, iam_login_required, iam_get_current_user, iam_is_authenticated, USE_AUTH_TYPE
+from flask_login import login_user, logout_user
 from .easy_chat import EasyChatClient, dict_to_chat_messages
 from .azurestorage import BlobStorage
 
@@ -47,15 +47,15 @@ def getChatbotConfig() -> dict:
 @app.route("/")
 def home():
     # if the user is not logged in, redirect to the login page
-    if not current_user.is_authenticated:
+    if not iam_is_authenticated():
         return redirect(url_for("login"))
-    if not isinstance(current_user, ChatbotUser):
-        return redirect(url_for("login"))
-    return render_template("index.html", user=current_user, chatbot_config=getChatbotConfig())
+    return render_template("index.html", user=iam_get_current_user(), chatbot_config=getChatbotConfig())
 
 
 @app.route("/logout")
 def logout():
+    if USE_AUTH_TYPE == "aad":
+        return redirect('/.auth/logout')
     logout_user()
     return redirect(url_for("login"))
 
@@ -66,11 +66,11 @@ def login():
         # user exists?
         username = str(request.form.get("username")).lower().strip()
         if username not in all_defined_users:
-            return render_template("login.html", message="User not found", user=current_user)
+            return render_template("login.html", message="User not found", user=iam_get_current_user())
         user = all_defined_users[username]
         # Check the username (again)
         if str(user.username).lower().strip() != username:
-            return render_template("login.html", message="Invalid credentials", user=current_user)
+            return render_template("login.html", message="Invalid credentials", user=iam_get_current_user())
         # Check the password
         try:
             hashed_password = hashlib.sha256(request.form.get("password").encode()).hexdigest()
@@ -84,20 +84,20 @@ def login():
             # Use the login_user method to log in the user
             login_user(user)
             return redirect(url_for("home"))
-        return render_template("login.html", message="Invalid credentials", user=current_user)
-    return render_template("login.html", user=current_user)
+        return render_template("login.html", message="Invalid credentials", user=iam_get_current_user())
+    return render_template("login.html", user=iam_get_current_user())
 #endregion -------- WEB/UI ENDPOINTS --------
 
 #region -------- API ENDPOINTS --------
-@login_required
+@iam_login_required
 @app.route("/api/chat", methods=["POST"])
 def api_chat():
-    if not isinstance(current_user, ChatbotUser):
-        logout_user()
-        return redirect(url_for("login"))
+    user = iam_get_current_user()
+    if user is None:
+        return jsonify({"success": False, "error": "Not logged in"}), 404
     try:
         bs = BlobStorage()
-        chatClient.setSearchFilterFromRole(current_user.getRole(), bs.getBaseUrl())
+        chatClient.setSearchFilterFromRole(user.getRole(), bs.getBaseUrl())
         return jsonify(
             chatClient.chat(
                 dict_to_chat_messages(request.get_json())
@@ -106,15 +106,15 @@ def api_chat():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
-@login_required
+@iam_login_required
 @app.route("/api/chat/stream", methods=["POST"])
 def api_chat_stream():
-    if not isinstance(current_user, ChatbotUser):
-        logout_user()
-        return redirect(url_for("login"))
+    user = iam_get_current_user()
+    if user is None:
+        return jsonify({"success": False, "error": "Not logged in"}), 404
     try:
         bs = BlobStorage()
-        chatClient.setSearchFilterFromRole(current_user.getRole(), bs.getBaseUrl())
+        chatClient.setSearchFilterFromRole(user.getRole(), bs.getBaseUrl())
         return Response(
             stream_with_context(
                 chatClient.streamedChat(
@@ -128,12 +128,9 @@ def api_chat_stream():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
-@login_required
+@iam_login_required
 @app.route("/api/blobstorage/file", methods=["GET"])
 def api_blobstorage_pdf():
-    if not isinstance(current_user, ChatbotUser):
-        logout_user()
-        return redirect(url_for("login"))
     # check for required parameters
     if not request.args.get("storageaccount_name") or not request.args.get("storageaccount_container") or not request.args.get("storageaccount_blob"):
         return jsonify({"success": False, "error": "Missing parameters"}), 400

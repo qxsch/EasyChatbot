@@ -13,11 +13,11 @@
 			<div class="easyChatBotMenuBar">
 				<h1>Easy Chat Bot</h1>
 				<ul>
-					{% if user and user.is_authenticated and user.role in ['user', 'admin'] %}
+					{% if user is not none  and  user.is_authenticated %}
 					<li><a href="{{ url_for('home') }}">Home</a></li>
 					{% endif %}
 					<li style="float:right">
-						{% if user and user.is_authenticated %}<a class="active" href="{{ url_for('logout') }}">Logout ({{ user.username }})</a>{% else %}<a class="active" href="{{ url_for('login') }}">Login</a>{% endif %}
+						{% if user is not none  and user.is_authenticated %}<a class="active" href="{{ url_for('logout') }}">Logout ({{ user.username }})</a>{% else %}<a class="active" href="{{ url_for('login') }}">Login</a>{% endif %}
 					</li>
 				</ul>
 			</div>
