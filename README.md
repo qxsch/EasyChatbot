@@ -9,6 +9,7 @@ An Easy Chatbot Interface
 * On click it will open the pdf document at the correct page
 * Supports multiple users with different roles (roles can be used to filter the search results and generate more relevant responses)
 * Supports streaming for low-latency responses
+* Supports local and Entra ID authentication (through web app easy auth)
 
 
 ## Prerequisites
