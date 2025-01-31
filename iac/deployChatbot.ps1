@@ -24,6 +24,9 @@ param (
     [string]$adaDeploymentName = $null,
     [int]$adaDeploymentCapacity = 0,
 
+    [string]$entraClientId = '',
+    [SecureString]$entraClientSecret = $null,
+
     [switch]$skipIacDeployment,
     [switch]$skipPdfUploadToStorage,
     [switch]$skipAzureSearchConfiguration,
@@ -112,6 +115,13 @@ if(-not $skipIacDeployment) {
     if($adaDeploymentCapacity -gt 0) {
         $params["adaDeploymentCapacity"] = $adaDeploymentCapacity
     }
+    if($entraClientId -ne '') {
+        $params["entraClientId"] = $entraClientId
+        if($entraClientSecret -is [SecureString]) {
+            $params["entraClientSecret"] = $entraClientSecret
+        }
+    }
+
     $evx = @()
     $deployment = New-AzResourceGroupDeployment @params -Name "chatbot"  -ErrorAction Continue -ErrorVariable +evx
     if($null -eq $deployment) {

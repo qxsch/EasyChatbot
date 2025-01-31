@@ -61,12 +61,21 @@ param adaDeploymentName string = 'text-embedding-ada-002' // The name of the Azu
 @description('Capacity of the azure openai ada deployment.')
 param adaDeploymentCapacity int = 350 // The capacity of the Azure OpenAI ada deployment
 
+@description('The client id of the service principal. Used to setup authentication. (Leave empty for local authentication)')
+param entraClientId string = '' // The client id of the service principal
+
+@description('The client secret of the service principal. Used to setup authentication. (Leave empty for local authentication)')
+@secure()
+param entraClientSecret string = '' // The client secret of the service principal
+
 // variables
 var linuxFxVersion = 'PYTHON|3.12' // The runtime stack of web app
 var appServicePlanName = toLower('plan-${webAppName}')
 var storageAccountName = toLower('storage${resourceSuffix}')
 var storageAccountSuffix = environment().suffixes.storage
 var searchSuffix = 'search.windows.net'
+
+var auth_type = ( entraClientId == '' ? 'local' : 'aad' )
 
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
@@ -184,7 +193,101 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
           name: 'CHATBOT_SECRET_KEY'
           value: '${uniqueString(subscription().id)}${uniqueString(resourceGroup().id)}'
         }
+        {
+          name: 'USE_AUTH_TYPE'
+          value: auth_type
+        }
+        {
+          name: 'USE_AUTH_CLIENTID'
+          value: entraClientId
+        }
+        {
+          name: 'USE_AUTH_SECRET'
+          value: entraClientSecret
+        }
       ]
+    }
+  }
+}
+
+resource WebAppAuth 'Microsoft.Web/sites/config@2024-04-01' = if( auth_type == 'aad' ) {
+  parent: webApp
+  name: 'authsettingsV2'  
+  properties: {
+    httpSettings: {
+      requireHttps: true
+      routes: {
+        apiPrefix: '/.auth'
+      }
+      forwardProxy: {
+        convention: 'NoProxy'
+      }
+    }
+    globalValidation: {
+      unauthenticatedClientAction: 'RedirectToLoginPage'
+      requireAuthentication: true
+      redirectToProvider: 'azureActiveDirectory'
+    }
+    platform: {
+      enabled: true
+      runtimeVersion: 'v2'
+    }
+    login: {
+      tokenStore: {
+        enabled: true
+        tokenRefreshExtensionHours: 72
+      }
+      preserveUrlFragmentsForLogins: false
+      cookieExpiration: {
+        convention: 'FixedTime'
+        timeToExpiration: '12:00:00'
+      }
+      nonce: {
+        validateNonce: true
+        nonceExpirationInterval: '00:05:00'
+      }
+    }
+    identityProviders: {
+      azureActiveDirectory: {
+        enabled: true
+        registration: {
+          openIdIssuer: 'https://sts.windows.net/${subscription().tenantId}/v2.0'
+          clientId: entraClientId
+          clientSecretSettingName: 'USE_AUTH_SECRET'
+        }
+        login: {
+          disableWWWAuthenticate: false
+        }
+        validation: {
+          jwtClaimChecks: {
+          }
+          allowedAudiences: [
+            entraClientId
+          ]
+          defaultAuthorizationPolicy: {
+            allowedPrincipals: {
+            }
+            allowedApplications: [
+              entraClientId
+            ]
+          }
+        }
+      }
+      facebook: {
+        enabled: false
+      }
+      google: {
+        enabled: false
+      }
+      twitter: {
+        enabled: false
+      }
+      gitHub: {
+        enabled: false
+      }
+      apple: {
+        enabled: false
+      }
     }
   }
 }
