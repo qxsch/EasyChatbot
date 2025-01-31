@@ -6,8 +6,8 @@ param webAppName string = toLower('chat-${resourceSuffix}') // Generate unique S
 
 @description('The pricing tier for the hosting plan.')
 @allowed([
-  'B1'
   'B2'
+  'B3'
   'P0V3'
 ])
 param sku string = 'B2' // The SKU of App Service Plan
