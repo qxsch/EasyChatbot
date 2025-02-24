@@ -61,6 +61,8 @@ def logout():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    if USE_AUTH_TYPE == "aad":
+        return redirect('/.auth/login/aad')
     # post request? process the login form
     if request.method == "POST":
         # user exists?
