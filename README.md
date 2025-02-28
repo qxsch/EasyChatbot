@@ -43,7 +43,7 @@ For local installation, you have to install the following components:
     # deploy the chatbot - you require owner role on the resource group
     .\iac\deployChatbot.ps1 -ResourceGroupName "easychatbot" -Location "northeurope"
     # OR use the below line in case you want to use entra id authentication
-    # .\ias\deployChatbot.ps1 -ResourceGroupName "easychatbot" -Location "northeurope" -entraClientId (Read-Host -Prompt "Client ID")  -entraClientSecret (Read-Host -AsSecureString -Prompt "Client Secret")
+    # .\iac\deployChatbot.ps1 -ResourceGroupName "easychatbot" -Location "northeurope" -entraClientId (Read-Host -Prompt "Client ID")  -entraClientSecret (Read-Host -AsSecureString -Prompt "Client Secret")
     ```
 1. Login to the chatbot interface and chat with your pdf data
 
