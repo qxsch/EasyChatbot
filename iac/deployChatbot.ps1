@@ -44,7 +44,13 @@ if(-not (Test-Path $FilesDir -PathType Container)) {
     throw "FilesDir must be a directory"
 }
 # check if the required files exist
-foreach($fname in @( "users.json", "system-prompt.md" )) {
+if($entraClientId -eq '') {
+    $requiredFiles = @( "users.json", "roles.json", "system-prompt.md" )
+}
+else {
+    $requiredFiles = @( "roles.json", "system-prompt.md" ) 
+}
+foreach($fname in $requiredFiles) {
     if(-not (Test-Path (Join-Path $botRoot $fname) -PathType Leaf)) {
         throw "The file '$fname' does not exist in the directory '$botRoot'"
     }
