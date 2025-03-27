@@ -205,6 +205,10 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
           name: 'USE_AUTH_SECRET'
           value: entraClientSecret
         }
+        {
+          name: auth_type == 'aad' ? 'WEBSITE_AUTH_AAD_ALLOWED_TENANTS' : 'LOCAL_AUTH'
+          value: auth_type == 'aad' ? subscription().tenantId : 'true'
+        }
       ]
     }
   }
