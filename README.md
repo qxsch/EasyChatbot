@@ -35,7 +35,7 @@ For local installation, you have to install the following components:
 1. Put your pdf documents in the [pdf_documents folder](pdf_documents)
 1. Create your users.json file (see [sample-users.json](sample-users.json)) or use the example ``cp sample-users.json users.json``
 1. Fine tune the [system-prompt.md](system-prompt.md) and [system-prompt-fewshot-examples.md](system-prompt-fewshot-examples.md) files
-1. (Optional) In case you want to use entra id authentication, follow this guide to set up a new app registration: [Use Entra in App Service](https://learn.microsoft.com/en-us/azure/app-service/configure-authentication-provider-aad?tabs=workforce-configuration#configure-client-apps-to-access-your-app-service)
+1. (Optional) In case you want to use entra id authentication, follow this guide to set up a new app registration: [Use Entra in App Service](https://learn.microsoft.com/en-us/azure/app-service/configure-authentication-provider-aad?tabs=workforce-configuration#configure-client-apps-to-access-your-app-service) and also [How to set up Entra ID for the Web App Authentication](HowToSetupEntraId.md)
 1. Run the setup script  ( You can check the parameters in the [deployment.bicep](iac/deployment.bicep) file )
     ```pwsh
     # create a resource group
